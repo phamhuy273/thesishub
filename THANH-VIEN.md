@@ -1,6 +1,7 @@
-# Thành viên
+# Thành viên nhóm N14
 
-Tệp này do hệ thống đăng ký Gói 1 ghi khi tạo kho. Không sửa; PR có thay đổi tệp này không qua được `kiem-pr`. Cần đổi thành viên thì báo giảng viên.
+Tệp do hệ thống đăng ký tạo, không sửa tay.
 
 | Mã thành viên | Tài khoản GitHub | Nhóm trưởng |
 |---|---|---|
+| N14-A | phamhuy273 | Có |
