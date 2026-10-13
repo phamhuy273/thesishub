@@ -1,6 +1,10 @@
-# [Tên hệ thống] — SE100 · Nhóm N__
+# ThesisHub — SE100 · Nhóm N14
 
-> Xoá dòng này rồi viết 5 dòng mô tả hệ thống: **ai** dùng, để **làm gì**, và điều gì **không được phép** xảy ra. Giảng viên đọc phần này đầu tiên khi duyệt đề tài, nên viết cho rõ.
+ThesisHub là hệ thống hỗ trợ quản lý và xét duyệt toàn diện quy trình đăng ký đồ án tốt nghiệp bậc đại học.
+Hệ thống phục vụ ba tác nhân chính gồm Sinh viên, Giảng viên hướng dẫn và Trưởng bộ môn trong suốt vòng đời đề tài.
+Quy trình nghiệp vụ vận hành khép kín từ lúc nộp đề xuất, giảng viên thẩm định, bộ môn phê duyệt đến khi ra hội đồng bảo vệ.
+Nền tảng tích hợp tính năng ghép đội thông minh giúp sinh viên tìm kiếm đồng đội có kỹ năng phù hợp để cùng thực hiện đồ án.
+Ràng buộc cốt lõi của hệ thống là tuyệt đối không cho phép một giảng viên nhận vượt quá hạn mức N sinh viên và mỗi đề tài chỉ thuộc nhóm tối đa hai thành viên.
 
 ## URL
 
