@@ -17,3 +17,7 @@ mutants/
 .hypothesis/
 .stryker-tmp/
 reports/mutation/
+target/
+.idea/
+*.iml
+.vscode/
