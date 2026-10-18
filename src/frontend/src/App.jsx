@@ -1,26 +1,181 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import Navbar from './components/Navbar';
+import Toast from './components/Toast';
+import TopicListPage from './pages/TopicListPage';
+import InstructorsPage from './pages/InstructorsPage';
+import RegulationsPage from './pages/RegulationsPage';
+import CreateTopicModal from './components/CreateTopicModal';
+import ApplyTeamModal from './components/ApplyTeamModal';
+import ApprovalModal from './components/ApprovalModal';
+import {
+  fetchDeTaiList,
+  createDeTai,
+  applyTeam,
+  updateTrangThai,
+  getGiangVienList
+} from './services/api';
 
 export default function App() {
+  const [deTaiList, setDeTaiList] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState('topics');
+  const [toast, setToast] = useState(null);
+
+  const [openCreateModal, setOpenCreateModal] = useState(false);
+  const [openApplyModal, setOpenApplyModal] = useState(false);
+  const [openApprovalModal, setOpenApprovalModal] = useState(false);
+  const [selectedTopic, setSelectedTopic] = useState(null);
+
+  const [applyStudentId, setApplyStudentId] = useState('SV02');
+  const [createForm, setCreateForm] = useState({
+    maDeTai: 'DT03',
+    tenDeTai: '',
+    moTa: '',
+    maGiangVien: 'GV01',
+    maSoSinhVien: 'SV01',
+    timDongDoi: true
+  });
+
+  const giangVienList = getGiangVienList();
+
+  const showNotification = (message, isError = false) => {
+    setToast({ message, isError });
+    setTimeout(() => setToast(null), 3500);
+  };
+
+  const loadData = async () => {
+    try {
+      const res = await fetchDeTaiList();
+      setDeTaiList(res.data);
+    } catch (err) {
+      showNotification('Không thể kết nối máy chủ', true);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadData();
+  }, []);
+
+  const handleCreateSubmit = async (e) => {
+    e.preventDefault();
+    if (!createForm.maDeTai.trim() || !createForm.tenDeTai.trim()) {
+      showNotification('Vui lòng nhập đầy đủ mã và tên đề tài', true);
+      return;
+    }
+
+    try {
+      await createDeTai(createForm);
+      showNotification('Đề xuất đề tài đã được ghi nhận thành công');
+      setOpenCreateModal(false);
+      setCreateForm({
+        maDeTai: 'DT' + String(Date.now()).slice(-3),
+        tenDeTai: '',
+        moTa: '',
+        maGiangVien: 'GV01',
+        maSoSinhVien: 'SV01',
+        timDongDoi: true
+      });
+      await loadData();
+    } catch (err) {
+      showNotification(err.message || 'Lỗi khi gửi đề xuất', true);
+    }
+  };
+
+  const handleApplySubmit = async (e) => {
+    e.preventDefault();
+    if (!selectedTopic || !applyStudentId.trim()) return;
+
+    try {
+      await applyTeam(selectedTopic.maDeTai, applyStudentId.trim());
+      showNotification(`Đã kết nạp sinh viên ${applyStudentId} vào nhóm đề tài ${selectedTopic.maDeTai}`);
+      setOpenApplyModal(false);
+      await loadData();
+    } catch (err) {
+      showNotification(err.message || 'Lỗi khi ứng tuyển ghép đội', true);
+    }
+  };
+
+  const handleApprovalSubmit = async (actionEndpoint) => {
+    if (!selectedTopic) return;
+
+    try {
+      await updateTrangThai(selectedTopic.maDeTai, actionEndpoint);
+      showNotification('Cập nhật trạng thái thẩm định thành công');
+      setOpenApprovalModal(false);
+      await loadData();
+    } catch (err) {
+      showNotification(err.message || 'Lỗi khi cập nhật trạng thái', true);
+    }
+  };
+
+  const handleOpenApply = (topic) => {
+    setSelectedTopic(topic);
+    setOpenApplyModal(true);
+  };
+
+  const handleOpenApprove = (topic) => {
+    setSelectedTopic(topic);
+    setOpenApprovalModal(true);
+  };
+
   return (
-    <div style={{ fontFamily: 'system-ui, -apple-system, sans-serif', padding: '2rem', maxWidth: '800px', margin: '0 auto', color: '#1f2937' }}>
-      <header style={{ borderBottom: '2px solid #2563eb', paddingBottom: '1rem', marginBottom: '1.5rem' }}>
-        <h1 style={{ color: '#1e3a8a', margin: 0, fontSize: '1.75rem' }}>ThesisHub — SE100 · Nhóm N14</h1>
-        <p style={{ color: '#4b5563', margin: '0.5rem 0 0 0' }}>
-          Hệ thống Quản lý và Xét duyệt Đăng ký Đồ án Tốt nghiệp
-        </p>
-      </header>
-      <main>
-        <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '1.5rem', lineHeight: '1.6' }}>
-          <h2 style={{ fontSize: '1.25rem', marginTop: 0, color: '#0f172a' }}>Khung cấu hình cơ bản</h2>
-          <p>Dự án đã được thiết lập cấu hình cơ bản cho cả Frontend và Backend:</p>
-          <ul style={{ paddingLeft: '1.25rem' }}>
-            <li><strong>Frontend:</strong> React 18 + Vite</li>
-            <li><strong>Backend:</strong> Java 21 + Spring Boot 4</li>
-            <li><strong>Database:</strong> PostgreSQL 16 (chạy qua Docker Compose)</li>
-            <li><strong>Deployment:</strong> Sẵn sàng triển khai trên Vercel</li>
-          </ul>
-        </div>
+    <div style={{ minHeight: '100vh', background: '#f8fafc', color: '#0f172a', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif' }}>
+      <Toast toast={toast} />
+
+      <Navbar
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+        onOpenCreateModal={() => setOpenCreateModal(true)}
+      />
+
+      <main style={{ maxWidth: '1240px', margin: '1.75rem auto', padding: '0 1.5rem' }}>
+        {activeTab === 'topics' && (
+          <TopicListPage
+            deTaiList={deTaiList}
+            loading={loading}
+            onApply={handleOpenApply}
+            onApprove={handleOpenApprove}
+          />
+        )}
+
+        {activeTab === 'instructors' && (
+          <InstructorsPage
+            giangVienList={giangVienList}
+            deTaiList={deTaiList}
+          />
+        )}
+
+        {activeTab === 'regulations' && (
+          <RegulationsPage />
+        )}
       </main>
+
+      <CreateTopicModal
+        isOpen={openCreateModal}
+        onClose={() => setOpenCreateModal(false)}
+        onSubmit={handleCreateSubmit}
+        form={createForm}
+        setForm={setCreateForm}
+        giangVienList={giangVienList}
+      />
+
+      <ApplyTeamModal
+        isOpen={openApplyModal}
+        onClose={() => setOpenApplyModal(false)}
+        onSubmit={handleApplySubmit}
+        selectedTopic={selectedTopic}
+        studentId={applyStudentId}
+        setStudentId={setApplyStudentId}
+      />
+
+      <ApprovalModal
+        isOpen={openApprovalModal}
+        onClose={() => setOpenApprovalModal(false)}
+        onSubmit={handleApprovalSubmit}
+        selectedTopic={selectedTopic}
+      />
     </div>
   );
 }
