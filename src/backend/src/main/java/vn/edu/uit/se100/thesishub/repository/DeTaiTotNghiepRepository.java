@@ -1,13 +1,11 @@
 package vn.edu.uit.se100.thesishub.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
 import java.util.Optional;
 import java.util.List;
 import vn.edu.uit.se100.thesishub.domain.DeTaiTotNghiep;
 import vn.edu.uit.se100.thesishub.domain.TrangThaiDeTai;
 
-@Repository
 public interface DeTaiTotNghiepRepository extends JpaRepository<DeTaiTotNghiep, Long> {
 
     Optional<DeTaiTotNghiep> findByMaDeTai(String maDeTai);
