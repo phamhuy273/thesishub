@@ -8,7 +8,7 @@ Ràng buộc cốt lõi của hệ thống là tuyệt đối không cho phép m
 
 ## URL
 
-- Bản chạy: https://
+- Bản chạy: https://se100-six.vercel.app/
 - Pipeline: xem tab Actions
 
 ## Thành viên
