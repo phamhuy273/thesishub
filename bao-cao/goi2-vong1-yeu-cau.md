@@ -12,11 +12,11 @@
 ## 1. Đã làm gì
 
 - **Khung hệ thống và triển khai:** Thiết lập cấu hình cơ bản cho toàn bộ ngăn xếp công nghệ: Backend Java 21 + Spring Boot 4 kết nối cơ sở dữ liệu PostgreSQL 16 qua Docker Compose; Frontend khởi tạo bằng React 18 + Vite sẵn sàng triển khai trên Vercel.
-- **Bản chạy thử nghiệm (Deploy URL):** https://se100-six.vercel.app/ (Frontend React trên Vercel kết nối trực tiếp Backend Java 21 Spring Boot trên Render: https://thesishub-4oxj.onrender.com/api).
+- **Bản chạy thử nghiệm (Deploy URL):** https://se100-six.vercel.app/ (Frontend React trên Vercel kết nối trực tiếp Backend Java 21 Spring Boot trên Render: https://thesishub-4oxj.onrender.com/api). Luồng chính chạy được trên URL: Luồng sinh viên tạo mới đề xuất đề tài tốt nghiệp kèm tùy chọn tìm đồng đội; luồng ghép đôi sinh viên thứ hai vào đề tài (bảo đảm nhóm tối đa 2 người); luồng xét duyệt đề tài hai cấp (giảng viên hướng dẫn duyệt chuyển lên bộ môn, bộ môn phê duyệt cho phép bảo vệ).
 - **Tài liệu yêu cầu (`docs/yeu-cau.md`):** Hoàn thiện phân tích 3 tác nhân chính, 8 yêu cầu chức năng (FR-01 đến FR-08), 4 yêu cầu phi chức năng (NFR-01 đến NFR-04) kèm số liệu và phương thức đo lường chính xác bằng k6 và UptimeRobot, 4 ràng buộc nghiệp vụ (BR-01 đến BR-04) và các câu hỏi mở qua PR #1.
 - **Biên bản phỏng vấn chuyên sâu (`docs/phong-van.md`):** Thực hiện phỏng vấn bán cấu trúc với sinh viên năm cuối (SV-01) và giảng viên bộ môn (GV-01), xây dựng ma trận truy vết TR-01 đến TR-07 sang các lớp và bất biến miền OOAD qua PR #3.
 - **Câu hỏi bối cảnh học thuật (`docs/cau-hoi-khach-hang.md`):** Soạn thảo 3 câu hỏi chuyên sâu về quản lý hạn mức, cỗ máy trạng thái vòng đời đề tài và cơ chế chống xung đột lợi ích hội đồng qua PR #2.
-- **Công việc chưa xong và lý do:** Luồng tương tác end-to-end hoàn chỉnh giữa giao diện web và API lưu trữ đang trong giai đoạn hoàn thiện tầng Service và Controller (các Ticket BE-04 và BE-05); dự kiến hoàn tất tích hợp và kiểm thử tự động ngay trong đầu Gói 3.
+- **Công việc chưa xong và lý do:** Cơ chế phân quyền chi tiết dựa trên mã hóa JWT và hệ thống gửi thông báo email đa luồng đang được tạm hoãn để triển khai ở Gói 5 theo lộ trình kiến trúc hệ thống.
 
 ---
 
