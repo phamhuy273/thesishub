@@ -1,5 +1,7 @@
 # Yêu cầu — ThesisHub
 
+- **Phụ trách:** N14-B
+
 *Gói 2. Kiểm gói đếm: ≥ 3 tác nhân, ≥ 6 FR, ≥ 3 NFR, ≥ 1 BR, và **mỗi dòng NFR phải có ít nhất một con số kèm đơn vị**. Nhớ giữ đúng tiền tố `FR-`, `NFR-`, `BR-` ở cột đầu, kiểm gói đếm theo đó.*
 
 ## Tác nhân
@@ -49,6 +51,17 @@ Mỗi dòng đủ bốn phần: *[Chỉ số] phải [ngưỡng] khi [điều ki
 | BR-02 | Mỗi đề tài chỉ được có tối đa 2 thành viên sinh viên | (điền ở Gói 4) |
 | BR-03 | Đề tài chưa được giảng viên thẩm định không được chuyển lên bộ môn phê duyệt | (điền ở Gói 4) |
 | BR-04 | Sinh viên đã có đề tài đang xét duyệt hoặc đã được phê duyệt không được nộp thêm đề tài mới trong cùng học kỳ | (điền ở Gói 4) |
+
+## Mâu thuẫn trong yêu cầu và cách giải quyết
+
+Trong quá trình thu thập yêu cầu từ các bên liên quan, nhóm nhận diện 3 mâu thuẫn chính và đã thống nhất phương án tháo gỡ:
+
+1. **Mâu thuẫn về quản lý hạn mức hướng dẫn:** Giảng viên muốn linh hoạt tiếp nhận thêm sinh viên có nguyện vọng tốt, trong khi Bộ môn yêu cầu khống chế cứng tải công việc để đảm bảo chất lượng và tính công bằng (BR-01). 
+   - *Cách giải quyết:* Nhóm thiết lập bất biến trần $N$ cứng (`soLuongSinhVienToiDa`) được bao đóng trong thực thể `GiangVienHuongDan`. Mọi trường hợp ngoại lệ bắt buộc phải có sự phê duyệt nâng trần của Trưởng bộ môn qua giao diện quản trị (ghi nhận tại `docs/cau-hoi-khach-hang.md:7-10`).
+2. **Mâu thuẫn về xử lý từ chối đề tài sát hạn chót:** Sinh viên lo ngại nếu bị từ chối vào ngày cuối cùng sẽ bị trễ học kỳ, trong khi nhà trường cần chốt danh sách để lên kế hoạch bảo vệ.
+   - *Cách giải quyết:* Nhóm đưa vào luồng ân hạn 72 giờ (`YEU_CAU_CHINH_SUA`) cho phép sinh viên hiệu chỉnh tối đa 1 lần nếu là từ chối có điều kiện; chỉ chuyển sang trạng thái kết thúc `BO_MON_TU_CHOI` khi hết hạn ân hạn hoặc bị từ chối dứt điểm (ghi nhận tại `docs/phong-van.md:62-66`).
+3. **Mâu thuẫn về vai trò của giảng viên hướng dẫn trong hội đồng:** Giảng viên hướng dẫn mong muốn trực tiếp tham gia hội đồng bảo vệ để hỗ trợ sinh viên, nhưng nguyên tắc đánh giá khách quan đòi hỏi chống xung đột lợi ích.
+   - *Cách giải quyết:* Phân định rõ trách nhiệm trong mô hình phân công hội đồng: Giảng viên hướng dẫn chỉ đánh giá điểm quá trình độc lập và tham dự với tư cách người hướng dẫn, không được là thành viên chấm điểm trong hội đồng nghiệm thu đề tài của mình (ghi nhận tại `docs/cau-hoi-khach-hang.md:19-22`).
 
 ## Câu hỏi còn mở cho khách hàng
 

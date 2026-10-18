@@ -1,5 +1,7 @@
 # Biên bản Phỏng vấn Thu thập Yêu cầu & Thẩm định Miền — Hệ thống ThesisHub
 
+- **Phụ trách:** N14-C
+
 **Phương pháp thực hiện:** Phỏng vấn bán cấu trúc (Semi-structured Qualitative Interview)  
 **Tổ chức thực hiện:** Nhóm phát triển N14 (`N14-A`, `N14-B`)  
 **Thời gian tiến hành:** Học kỳ 1, Năm học 2026–2027 (Tháng 10/2026)  

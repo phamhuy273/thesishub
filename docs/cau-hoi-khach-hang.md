@@ -1,5 +1,7 @@
 # Ba câu hỏi bối cảnh nghiệp vụ dành cho Khách hàng (Đơn vị Quản lý Đào tạo)
 
+- **Phụ trách:** N14-A
+
 *Gói 2. Kiểm gói đếm dấu `?`, cần ≥ 3. Câu hỏi tập trung vào **bối cảnh học thuật, quyền sở hữu quy chế, cơ chế xử lý ngoại lệ và bất biến miền** trong phương pháp phân tích và thiết kế hướng đối tượng (OOAD).*
 
 ---
