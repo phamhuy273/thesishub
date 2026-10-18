@@ -73,13 +73,20 @@ export async function createDeTai(payload) {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
-      signal: AbortSignal.timeout(3000)
+      signal: AbortSignal.timeout(6000)
     });
     if (res.ok) {
       return await res.json();
     }
     const errText = await res.text();
-    throw new Error(errText || 'Lỗi khi gửi đề xuất lên máy chủ');
+    let errMsg = 'Lỗi khi gửi đề xuất lên máy chủ';
+    try {
+      const errJson = JSON.parse(errText);
+      errMsg = errJson.message || (errJson.error === 'Internal Server Error' ? `Mã đề tài "${payload.maDeTai}" đã tồn tại` : errJson.error) || errText;
+    } catch (e) {
+      errMsg = errText || 'Lỗi khi gửi đề xuất lên máy chủ';
+    }
+    throw new Error(errMsg);
   } catch (err) {
     if (err.message && !err.message.includes('fetch')) {
       throw err;
@@ -120,13 +127,20 @@ export async function applyTeam(maDeTai, maSoSinhVien) {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ maSoSinhVien }),
-      signal: AbortSignal.timeout(3000)
+      signal: AbortSignal.timeout(6000)
     });
     if (res.ok) {
       return await res.json();
     }
     const errText = await res.text();
-    throw new Error(errText || 'Lỗi khi ứng tuyển');
+    let errMsg = 'Lỗi khi ứng tuyển';
+    try {
+      const errJson = JSON.parse(errText);
+      errMsg = errJson.message || errJson.error || errText;
+    } catch (e) {
+      errMsg = errText || 'Lỗi khi ứng tuyển';
+    }
+    throw new Error(errMsg);
   } catch (err) {
     if (err.message && !err.message.includes('fetch')) {
       throw err;
@@ -159,13 +173,20 @@ export async function updateTrangThai(maDeTai, actionEndpoint) {
   try {
     const res = await fetch(`${API_BASE}/de-tai/${maDeTai}/${actionEndpoint}`, {
       method: 'PUT',
-      signal: AbortSignal.timeout(3000)
+      signal: AbortSignal.timeout(6000)
     });
     if (res.ok) {
       return await res.json();
     }
     const errText = await res.text();
-    throw new Error(errText || 'Lỗi khi cập nhật trạng thái');
+    let errMsg = 'Lỗi khi cập nhật trạng thái';
+    try {
+      const errJson = JSON.parse(errText);
+      errMsg = errJson.message || errJson.error || errText;
+    } catch (e) {
+      errMsg = errText || 'Lỗi khi cập nhật trạng thái';
+    }
+    throw new Error(errMsg);
   } catch (err) {
     if (err.message && !err.message.includes('fetch')) {
       throw err;

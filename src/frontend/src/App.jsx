@@ -38,6 +38,17 @@ export default function App() {
 
   const giangVienList = getGiangVienList();
 
+  const getNextMaDeTai = (list) => {
+    const numbers = (list || [])
+      .map(d => {
+        const m = d.maDeTai && d.maDeTai.match(/\d+/);
+        return m ? parseInt(m[0], 10) : 0;
+      })
+      .filter(n => !isNaN(n));
+    const max = numbers.length > 0 ? Math.max(...numbers) : 2;
+    return 'DT' + String(max + 1).padStart(2, '0');
+  };
+
   const showNotification = (message, isError = false) => {
     setToast({ message, isError });
     setTimeout(() => setToast(null), 3500);
@@ -47,6 +58,10 @@ export default function App() {
     try {
       const res = await fetchDeTaiList();
       setDeTaiList(res.data);
+      setCreateForm(prev => ({
+        ...prev,
+        maDeTai: getNextMaDeTai(res.data)
+      }));
     } catch (err) {
       showNotification('Không thể kết nối máy chủ', true);
     } finally {
@@ -57,6 +72,17 @@ export default function App() {
   useEffect(() => {
     loadData();
   }, []);
+
+  const handleOpenCreateModal = () => {
+    setCreateForm(prev => ({
+      ...prev,
+      maDeTai: getNextMaDeTai(deTaiList),
+      tenDeTai: '',
+      moTa: '',
+      timDongDoi: true
+    }));
+    setOpenCreateModal(true);
+  };
 
   const handleCreateSubmit = async (e) => {
     e.preventDefault();
@@ -69,14 +95,6 @@ export default function App() {
       await createDeTai(createForm);
       showNotification('Đề xuất đề tài đã được ghi nhận thành công');
       setOpenCreateModal(false);
-      setCreateForm({
-        maDeTai: 'DT' + String(Date.now()).slice(-3),
-        tenDeTai: '',
-        moTa: '',
-        maGiangVien: 'GV01',
-        maSoSinhVien: 'SV01',
-        timDongDoi: true
-      });
       await loadData();
     } catch (err) {
       showNotification(err.message || 'Lỗi khi gửi đề xuất', true);
@@ -127,7 +145,7 @@ export default function App() {
       <Navbar
         activeTab={activeTab}
         setActiveTab={setActiveTab}
-        onOpenCreateModal={() => setOpenCreateModal(true)}
+        onOpenCreateModal={handleOpenCreateModal}
       />
 
       <main style={{ maxWidth: '1240px', margin: '1.75rem auto', padding: '0 1.5rem' }}>
