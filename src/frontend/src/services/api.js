@@ -1,4 +1,4 @@
-const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api';
+const API_BASE = import.meta.env.VITE_API_BASE_URL || 'https://thesishub-4oxj.onrender.com/api';
 
 const DEFAULT_GV = [
   { id: 1, maGiangVien: 'GV01', hoTen: 'TS. Nguyễn Văn A', email: 'nva@uit.edu.vn', soLuongSinhVienToiDa: 10, soLuongHienTai: 2 },

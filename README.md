@@ -9,6 +9,7 @@ Ràng buộc cốt lõi của hệ thống là tuyệt đối không cho phép m
 ## URL
 
 - Bản chạy: https://se100-six.vercel.app/
+- API Backend: https://thesishub-4oxj.onrender.com/api
 - Pipeline: xem tab Actions
 
 ## Thành viên
