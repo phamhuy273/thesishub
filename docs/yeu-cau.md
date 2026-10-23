@@ -26,6 +26,7 @@ Viết dạng: *Là [tác nhân], tôi muốn [làm gì] để [đạt gì]*. Đ
 | FR-06 | Trưởng bộ môn | Phê duyệt hoặc từ chối đề tài sau khi giảng viên đã thẩm định | Ra quyết định chính thức về việc triển khai đề tài | Người: đọc hồ sơ đề tài và ý kiến giảng viên, chọn Phê duyệt / Từ chối · Phần mềm: cập nhật trạng thái, thông báo cho giảng viên và sinh viên |
 | FR-07 | Trưởng bộ môn | Xếp hội đồng bảo vệ cho các đề tài đã được phê duyệt | Lên lịch bảo vệ đồ án đúng quy trình | Người: chọn đề tài, chọn thành viên hội đồng, chọn thời gian · Phần mềm: kiểm tra xung đột lịch, lưu lịch và thông báo cho các bên |
 | FR-08 | Trưởng bộ môn | Xem thống kê hạn mức và kiểm tra việc phân công sinh viên cho từng giảng viên | Đảm bảo phân bổ công bằng và không phân công vượt hạn mức | Người: xem trang thống kê và thực hiện phân công · Phần mềm: tổng hợp số sinh viên hiện được hướng dẫn so với hạn mức, cảnh báo khi gần đầy và từ chối phân công nếu số lượng sau phân công vượt hạn mức |
+| FR-09 | Sinh viên, Giảng viên hướng dẫn, Trưởng bộ môn | Đăng nhập bằng tài khoản được cấp trước khi thao tác | Đảm bảo chỉ đúng người, đúng vai trò mới được nộp, thẩm định, phê duyệt hoặc phân công | Người: nhập tài khoản và mật khẩu · Phần mềm: xác thực thông tin, xác định vai trò, chỉ hiển thị chức năng đúng vai trò |
 
 ## Yêu cầu phi chức năng
 
