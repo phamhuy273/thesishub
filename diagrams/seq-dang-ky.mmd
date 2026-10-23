@@ -1,0 +1,57 @@
+sequenceDiagram
+  %% Phụ trách: N14-C
+  actor SV as Sinh viên
+  participant DeTaiController
+  participant DeTaiService
+  participant DeTaiTotNghiep
+  participant SinhVien
+  participant GiangVienHuongDan
+
+  %% --- UC-02: Tìm kiếm đồng đội & Ghép đội ---
+  Note over SV,DeTaiController: UC-02: Tìm kiếm đồng đội theo kỹ năng & lĩnh vực
+  SV->>DeTaiController: timKiemDongDoi(kyNang, linhVuc)
+  DeTaiController->>DeTaiService: timKiemDongDoi(kyNang, linhVuc)
+  DeTaiService->>SinhVien: getKyNang()
+  SinhVien-->>DeTaiService: kyNang
+  DeTaiService-->>DeTaiController: danhSachSinhVienPhuHop
+  DeTaiController-->>SV: 200 OK (Danh sách đồng đội tiềm năng)
+
+  %% --- UC-01: Nộp đề xuất đề tài ---
+  Note over SV,DeTaiController: UC-01: Đăng ký đề tài tốt nghiệp & ghép đội
+  SV->>DeTaiController: dangKyDeTai(deTaiRequest, danhSachSinhVien, gvhd)
+  DeTaiController->>DeTaiService: dangKyDeTai(tieuDe, moTa, linhVuc, danhSachSinhVien, gvhd)
+
+  alt Số lượng thành viên > 2 (Vi phạm BR-02)
+    DeTaiService-->>DeTaiController: throw IllegalArgumentException("BR-02: Tối đa 2 sinh viên")
+    DeTaiController-->>SV: 400 Bad Request ("Mỗi đề tài chỉ có tối đa 2 sinh viên")
+  else Số lượng thành viên hợp lệ (<= 2)
+    opt Sinh viên đã có đề tài trong học kỳ (Vi phạm BR-04)
+      DeTaiService-->>DeTaiController: throw IllegalStateException("BR-04: Sinh viên đã có đề tài")
+      DeTaiController-->>SV: 400 Bad Request ("Sinh viên đã đăng ký đề tài trong học kỳ")
+    end
+
+    DeTaiService->>GiangVienHuongDan: coTheNhanThem()
+    alt GVHD đã vượt trần hạn mức N sinh viên (Vi phạm BR-01)
+      GiangVienHuongDan-->>DeTaiService: false
+      DeTaiService-->>DeTaiController: throw IllegalStateException("BR-01: GVHD đã đạt hạn mức")
+      DeTaiController-->>SV: 400 Bad Request ("Giảng viên hướng dẫn đã đạt hạn mức sinh viên")
+    else GVHD còn chỉ tiêu hướng dẫn
+      GiangVienHuongDan-->>DeTaiService: true
+      DeTaiService->>DeTaiTotNghiep: new DeTaiTotNghiep(tieuDe, moTa, linhVuc, gvhd)
+      DeTaiTotNghiep-->>DeTaiService: deTai
+
+      DeTaiService->>DeTaiTotNghiep: themSinhVien(sinhVien1)
+      DeTaiTotNghiep-->>DeTaiService: true
+
+      opt Có thành viên ghép đội (SinhVien 2)
+        DeTaiService->>DeTaiTotNghiep: themSinhVien(sinhVien2)
+        DeTaiTotNghiep-->>DeTaiService: true
+      end
+
+      DeTaiService->>DeTaiTotNghiep: setTrangThai(CHO_GV_DONG_Y)
+      DeTaiTotNghiep-->>DeTaiService: true
+
+      DeTaiService-->>DeTaiController: deTai
+      DeTaiController-->>SV: 201 Created (Đăng ký đề tài thành công, chờ GVHD thẩm định)
+    end
+  end
