@@ -1,0 +1,76 @@
+sequenceDiagram
+  %% Phụ trách: N14-C
+  actor GVHD as Giảng viên hướng dẫn
+  actor TBM as Trưởng bộ môn
+  participant DeTaiController
+  participant DeTaiService
+  participant DeTaiTotNghiep
+  participant GiangVienHuongDan
+
+  %% ==========================================
+  %% CẤP 1: GIẢNG VIÊN HƯỚNG DẪN THẨM ĐỊNH (FR-04)
+  %% ==========================================
+  Note over GVHD,DeTaiController: Cấp 1: GVHD thẩm định đề xuất đề tài (FR-04)
+  GVHD->>DeTaiController: giangVienDuyet(deTai, quyetDinh, yKien)
+  DeTaiController->>DeTaiService: giangVienDuyet(deTai, quyetDinh, yKien)
+
+  DeTaiService->>GiangVienHuongDan: coTheNhanThem()
+  alt GVHD vượt trần hạn mức N sinh viên (Luồng lỗi 4e - Vi phạm BR-01)
+    GiangVienHuongDan-->>DeTaiService: false
+    DeTaiService-->>DeTaiController: throw IllegalStateException("BR-01: Vượt hạn mức N sinh viên")
+    DeTaiController-->>GVHD: 400 Bad Request ("Lỗi: GVHD đã đủ hoặc vượt quá hạn mức N sinh viên")
+  else GVHD còn chỉ tiêu hướng dẫn (BR-01 hợp lệ)
+    GiangVienHuongDan-->>DeTaiService: true
+    alt Quyết định = "TU_CHOI" (Luồng lỗi 3e - GVHD từ chối dứt điểm)
+      DeTaiService->>DeTaiTotNghiep: tuChoi(yKien)
+      DeTaiTotNghiep->>DeTaiTotNghiep: setTrangThai(GV_TU_CHOI)
+      DeTaiTotNghiep-->>DeTaiService: deTai
+      DeTaiService-->>DeTaiController: deTai
+      DeTaiController-->>GVHD: 200 OK ("Từ chối đề tài, kết thúc xét duyệt")
+    else Quyết định = "YEU_CAU_HIEU_CHINH" (Luồng thay thế 3a - Ân hạn 72h)
+      DeTaiService->>DeTaiTotNghiep: yeuCauHieuChinh(yKien, 72)
+      DeTaiTotNghiep->>DeTaiTotNghiep: setTrangThai(YEU_CAU_HIEU_CHINH)
+      DeTaiTotNghiep-->>DeTaiService: deTai
+      DeTaiService-->>DeTaiController: deTai
+      DeTaiController-->>GVHD: 200 OK ("Yêu cầu hiệu chỉnh thành công, ân hạn 72h")
+    else Quyết định = "DONG_Y" (Luồng chính Bước 3, 4 - Thẩm định đạt)
+      DeTaiService->>DeTaiTotNghiep: chuyenLenBoMon(yKien)
+      DeTaiTotNghiep->>DeTaiTotNghiep: setTrangThai(CHO_BO_MON_DUYET)
+      DeTaiTotNghiep-->>DeTaiService: deTai
+      DeTaiService-->>DeTaiController: deTai
+      DeTaiController-->>GVHD: 200 OK ("Thẩm định đạt, đã chuyển hồ sơ lên Bộ môn")
+    end
+  end
+
+  %% ==========================================
+  %% CẤP 2: TRƯỞNG BỘ MÔN PHÊ DUYỆT (FR-06)
+  %% ==========================================
+  Note over TBM,DeTaiController: Cấp 2: Trưởng bộ môn phê duyệt đề tài (FR-06)
+  TBM->>DeTaiController: boMonDuyet(deTai, quyetDinh, yKien)
+  DeTaiController->>DeTaiService: boMonDuyet(deTai, quyetDinh, yKien)
+
+  DeTaiService->>DeTaiTotNghiep: getTrangThai()
+  DeTaiTotNghiep-->>DeTaiService: trangThai
+
+  alt Trạng thái khác CHO_BO_MON_DUYET (Luồng lỗi - Vi phạm BR-03)
+    DeTaiService-->>DeTaiController: throw IllegalStateException("BR-03: Đề tài chưa được GVHD duyệt")
+    DeTaiController-->>TBM: 400 Bad Request ("Vi phạm BR-03: Đề tài chưa được GVHD thẩm định")
+  else Đề tài đã qua GVHD thẩm định đạt (BR-03 hợp lệ)
+    alt Quyết định = "TU_CHOI" (Luồng lỗi 7e - Trưởng bộ môn từ chối dứt điểm)
+      DeTaiService->>DeTaiTotNghiep: boMonTuChoi(yKien)
+      DeTaiTotNghiep->>DeTaiTotNghiep: setTrangThai(BO_MON_TU_CHOI)
+      DeTaiTotNghiep-->>DeTaiService: deTai
+      DeTaiService-->>DeTaiController: deTai
+      DeTaiController-->>TBM: 200 OK ("Bộ môn từ chối phê duyệt đề tài")
+    else Quyết định = "PHE_DUYET" (Luồng chính Bước 7, 8 - Phê duyệt 2 cấp thành công)
+      DeTaiService->>DeTaiTotNghiep: getSoLuongSinhVien()
+      DeTaiTotNghiep-->>DeTaiService: soLuongSV
+      DeTaiService->>GiangVienHuongDan: tangSoLuong(soLuongSV)
+      GiangVienHuongDan-->>DeTaiService: soLuongMoi
+      DeTaiService->>DeTaiTotNghiep: boMonPheDuyet(yKien)
+      DeTaiTotNghiep->>DeTaiTotNghiep: setTrangThai(DUOC_BAO_VE)
+      DeTaiTotNghiep-->>DeTaiService: deTai
+      DeTaiService-->>DeTaiController: deTai
+      DeTaiController-->>TBM: 200 OK ("Phê duyệt đề tài 2 cấp thành công")
+    end
+  end
