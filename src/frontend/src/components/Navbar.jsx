@@ -1,17 +1,22 @@
 import React from 'react';
+import uitLogo from '../assets/uit-logo.png';
 
 export default function Navbar({ activeTab, setActiveTab, onOpenCreateModal }) {
   return (
     <>
       <header style={{ background: '#0f172a', borderBottom: '1px solid #1e293b', color: '#fff' }}>
-        <div style={{ maxWidth: '1240px', margin: '0 auto', padding: '0.85rem 1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-            <div style={{ width: '34px', height: '34px', background: '#2563eb', borderRadius: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '1rem', color: '#fff' }}>
-              TH
+        <div style={{ maxWidth: '1240px', margin: '0 auto', padding: '0.75rem 1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', background: '#fff', borderRadius: '8px', padding: '4px 8px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
+              <img
+                src={uitLogo}
+                alt="Logo UIT 20 Năm"
+                style={{ height: '48px', width: 'auto', objectFit: 'contain', display: 'block' }}
+              />
             </div>
             <div>
-              <div style={{ fontSize: '1.1rem', fontWeight: 700, letterSpacing: '-0.01em', lineHeight: 1.2 }}>ThesisHub</div>
-              <div style={{ fontSize: '0.75rem', color: '#94a3b8' }}>Hệ thống Quản lý Khóa luận Tốt nghiệp · ĐH Công nghệ Thông tin (UIT)</div>
+              <div style={{ fontSize: '1.15rem', fontWeight: 700, letterSpacing: '-0.01em', lineHeight: 1.2, color: '#f8fafc' }}>ThesisHub</div>
+              <div style={{ fontSize: '0.75rem', color: '#94a3b8' }}>Hệ thống Quản lý & Xét duyệt Đồ án Tốt nghiệp · ĐH Công nghệ Thông tin (UIT)</div>
             </div>
           </div>
 
