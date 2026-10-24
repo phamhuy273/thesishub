@@ -1,4 +1,4 @@
-**phụ trách** N14-C
+- **Phụ trách:** N14-C
 
 # Đặc tả use case — UC-03 Thẩm định và xét duyệt đề tài hai cấp
 
