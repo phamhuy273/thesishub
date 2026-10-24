@@ -1,0 +1,47 @@
+flowchart LR
+  %% Phụ trách: N14-B
+  %% Sơ đồ use case toàn hệ thống ThesisHub. Truy vết FR theo docs/yeu-cau.md.
+
+  SV([Sinh viên])
+  GV([Giảng viên hướng dẫn])
+  TBM([Trưởng bộ môn])
+
+  subgraph HT[Hệ thống ThesisHub]
+    UC01(UC-01 Nộp đề xuất đề tài)
+    UC02(UC-02 Tìm kiếm và ghép đội)
+    UC03(UC-03 Theo dõi tiến độ đề tài)
+    UC04(UC-04 Thẩm định đề tài)
+    UC05(UC-05 Phê duyệt đề tài)
+    UC06(UC-06 Xếp hội đồng bảo vệ)
+    UC07(UC-07 Quản lý hạn mức giảng viên)
+    UC08(UC-08 Xác thực)
+  end
+
+  %% Sinh viên: FR-01, FR-02, FR-03
+  SV --> UC01
+  SV --> UC02
+  SV --> UC03
+
+  %% Giảng viên hướng dẫn: FR-04, FR-05
+  GV --> UC03
+  GV --> UC04
+
+  %% Trưởng bộ môn: FR-06, FR-07, FR-08
+  TBM --> UC05
+  TBM --> UC06
+  TBM --> UC07
+
+  %% Quan hệ include
+  UC01 -.->|«include»| UC08
+  UC02 -.->|«include»| UC08
+  UC04 -.->|«include»| UC08
+  UC05 -.->|«include»| UC08
+  UC06 -.->|«include»| UC08
+  UC07 -.->|«include»| UC08
+
+  %% Kiểu dáng theo mẫu UML: use case hình elip, tác nhân viền đậm, khung hệ thống màu vàng
+  classDef uc fill:#ffffff,stroke:#333333,stroke-width:1.5px,color:#000000,rx:60px,ry:30px
+  classDef actor fill:#ffffff,stroke:#333333,stroke-width:2px,color:#000000
+  class UC01,UC02,UC03,UC04,UC05,UC06,UC07,UC08 uc
+  class SV,GV,TBM actor
+  style HT fill:#ffffde,stroke:#aaaa33,stroke-width:1px,color:#000000
