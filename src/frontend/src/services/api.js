@@ -45,7 +45,12 @@ function getStorage(key, fallback) {
     return fallback;
   }
   try {
-    return JSON.parse(data);
+    const parsed = JSON.parse(data);
+    if (Array.isArray(parsed) && parsed.some(d => (d.tenDeTai && d.tenDeTai.includes('coding fixed')) || (d.moTa && d.moTa.includes('coding fixed')))) {
+      localStorage.setItem('th_' + key, JSON.stringify(fallback));
+      return fallback;
+    }
+    return parsed;
   } catch (e) {
     return fallback;
   }

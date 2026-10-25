@@ -1,38 +1,52 @@
 import React from 'react';
 import uitLogo from '../assets/uit-logo.png';
 
-export default function Navbar({ activeTab, setActiveTab, onOpenCreateModal }) {
+export default function Navbar({ activeTab, setActiveTab, onOpenCreateModal, currentRole, setCurrentRole }) {
   return (
     <>
-      <header style={{ background: '#0f172a', borderBottom: '1px solid #1e293b', color: '#fff' }}>
-        <div style={{ maxWidth: '1240px', margin: '0 auto', padding: '0.75rem 1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
-            <div style={{ display: 'flex', alignItems: 'center', background: '#fff', borderRadius: '8px', padding: '4px 8px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
+      <header style={{ background: 'var(--header)', borderBottom: '1px solid #1e293b', color: '#fff', minHeight: '72px', display: 'flex', alignItems: 'center' }}>
+        <div className="container" style={{ width: '100%', padding: '0.6rem 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', background: '#fff', borderRadius: '8px', padding: '3px 6px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
               <img
                 src={uitLogo}
                 alt="Logo UIT 20 Năm"
-                style={{ height: '48px', width: 'auto', objectFit: 'contain', display: 'block' }}
+                style={{ height: '44px', width: 'auto', objectFit: 'contain', display: 'block' }}
               />
             </div>
             <div>
-              <div style={{ fontSize: '1.15rem', fontWeight: 700, letterSpacing: '-0.01em', lineHeight: 1.2, color: '#f8fafc' }}>ThesisHub</div>
-              <div style={{ fontSize: '0.75rem', color: '#94a3b8' }}>Hệ thống Quản lý & Xét duyệt Đồ án Tốt nghiệp · ĐH Công nghệ Thông tin (UIT)</div>
+              <div style={{ fontSize: '1.2rem', fontWeight: 700, letterSpacing: '-0.01em', lineHeight: 1.2, color: '#f8fafc' }}>ThesisHub</div>
+              <div className="nav-subtitle" style={{ fontSize: '0.75rem', color: '#94a3b8' }}>Hệ thống Quản lý & Xét duyệt Đồ án Tốt nghiệp · ĐH Công nghệ Thông tin (UIT)</div>
             </div>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', alignItems: 'center', background: '#1e293b', border: '1px solid #334155', borderRadius: '8px', padding: '2px 8px' }}>
+              <span style={{ fontSize: '0.75rem', color: '#94a3b8', marginRight: '6px' }}>Vai trò:</span>
+              <select
+                value={currentRole}
+                onChange={(e) => setCurrentRole(e.target.value)}
+                style={{
+                  background: 'transparent',
+                  color: '#f8fafc',
+                  border: 'none',
+                  fontSize: '0.8rem',
+                  fontWeight: 600,
+                  outline: 'none',
+                  cursor: 'pointer',
+                  padding: '4px 0'
+                }}
+              >
+                <option value="student" style={{ background: '#0f172a', color: '#fff' }}>Sinh viên (SV01)</option>
+                <option value="instructor" style={{ background: '#0f172a', color: '#fff' }}>GVHD (GV01)</option>
+                <option value="department" style={{ background: '#0f172a', color: '#fff' }}>Trưởng bộ môn</option>
+              </select>
+            </div>
+
             <button
               onClick={onOpenCreateModal}
-              style={{
-                background: '#2563eb',
-                color: '#fff',
-                border: 'none',
-                borderRadius: '6px',
-                padding: '0.45rem 0.9rem',
-                fontSize: '0.825rem',
-                fontWeight: 600,
-                cursor: 'pointer'
-              }}
+              className="btn-primary"
+              style={{ padding: '6px 12px', fontSize: '0.825rem' }}
             >
               + Nộp đề xuất mới
             </button>
@@ -40,50 +54,23 @@ export default function Navbar({ activeTab, setActiveTab, onOpenCreateModal }) {
         </div>
       </header>
 
-      <div style={{ background: '#fff', borderBottom: '1px solid #e2e8f0' }}>
-        <div style={{ maxWidth: '1240px', margin: '0 auto', padding: '0 1.5rem', display: 'flex', gap: '2rem' }}>
+      <div style={{ background: 'var(--surface)', borderBottom: '1px solid var(--border)' }}>
+        <div className="container" style={{ display: 'flex', overflowX: 'auto' }}>
           <button
             onClick={() => setActiveTab('topics')}
-            style={{
-              padding: '0.85rem 0',
-              border: 'none',
-              background: 'none',
-              borderBottom: activeTab === 'topics' ? '2px solid #2563eb' : '2px solid transparent',
-              color: activeTab === 'topics' ? '#2563eb' : '#64748b',
-              fontWeight: activeTab === 'topics' ? 600 : 500,
-              fontSize: '0.875rem',
-              cursor: 'pointer'
-            }}
+            className={`tab ${activeTab === 'topics' ? 'active' : ''}`}
           >
             Danh sách Đề tài
           </button>
           <button
             onClick={() => setActiveTab('instructors')}
-            style={{
-              padding: '0.85rem 0',
-              border: 'none',
-              background: 'none',
-              borderBottom: activeTab === 'instructors' ? '2px solid #2563eb' : '2px solid transparent',
-              color: activeTab === 'instructors' ? '#2563eb' : '#64748b',
-              fontWeight: activeTab === 'instructors' ? 600 : 500,
-              fontSize: '0.875rem',
-              cursor: 'pointer'
-            }}
+            className={`tab ${activeTab === 'instructors' ? 'active' : ''}`}
           >
             Hạn ngạch Giảng viên
           </button>
           <button
             onClick={() => setActiveTab('regulations')}
-            style={{
-              padding: '0.85rem 0',
-              border: 'none',
-              background: 'none',
-              borderBottom: activeTab === 'regulations' ? '2px solid #2563eb' : '2px solid transparent',
-              color: activeTab === 'regulations' ? '#2563eb' : '#64748b',
-              fontWeight: activeTab === 'regulations' ? 600 : 500,
-              fontSize: '0.875rem',
-              cursor: 'pointer'
-            }}
+            className={`tab ${activeTab === 'regulations' ? 'active' : ''}`}
           >
             Quy chế & Bất biến
           </button>

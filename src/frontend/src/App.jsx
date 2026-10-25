@@ -20,6 +20,7 @@ export default function App() {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('topics');
   const [toast, setToast] = useState(null);
+  const [currentRole, setCurrentRole] = useState('student');
 
   const [openCreateModal, setOpenCreateModal] = useState(false);
   const [openApplyModal, setOpenApplyModal] = useState(false);
@@ -139,22 +140,25 @@ export default function App() {
   };
 
   return (
-    <div style={{ minHeight: '100vh', background: '#f8fafc', color: '#0f172a', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif' }}>
+    <div style={{ minHeight: '100vh', background: 'var(--bg)', color: 'var(--text)' }}>
       <Toast toast={toast} />
 
       <Navbar
         activeTab={activeTab}
         setActiveTab={setActiveTab}
         onOpenCreateModal={handleOpenCreateModal}
+        currentRole={currentRole}
+        setCurrentRole={setCurrentRole}
       />
 
-      <main style={{ maxWidth: '1240px', margin: '1.75rem auto', padding: '0 1.5rem' }}>
+      <main className="container" style={{ margin: '1.75rem auto' }}>
         {activeTab === 'topics' && (
           <TopicListPage
             deTaiList={deTaiList}
             loading={loading}
             onApply={handleOpenApply}
             onApprove={handleOpenApprove}
+            currentRole={currentRole}
           />
         )}
 
