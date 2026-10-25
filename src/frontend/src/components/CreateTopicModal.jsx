@@ -6,9 +6,16 @@ export default function CreateTopicModal({
   onSubmit,
   form,
   setForm,
-  giangVienList
+  giangVienList,
+  deTaiList
 }) {
   if (!isOpen) return null;
+
+  const existingTopicOfStudent = (deTaiList || []).find(d =>
+    d.trangThai !== 'GV_TU_CHOI' &&
+    d.trangThai !== 'BO_MON_TU_CHOI' &&
+    (d.danhSachSinhVien || []).some(s => s.maSoSinhVien === form.maSoSinhVien?.trim())
+  );
 
   return (
     <div style={{ position: 'fixed', inset: 0, background: 'rgba(15, 23, 42, 0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '1rem' }}>
@@ -88,6 +95,12 @@ export default function CreateTopicModal({
             </label>
           </div>
 
+          {existingTopicOfStudent && (
+            <div style={{ color: '#b91c1c', background: '#fef2f2', border: '1px solid #fecaca', borderRadius: '8px', padding: '10px 14px', fontSize: '13px', marginBottom: '1.25rem', lineHeight: 1.4 }}>
+              ⚠️ <strong>Cảnh báo quy chế BR-04:</strong> Sinh viên <strong>{form.maSoSinhVien}</strong> hiện đã tham gia đề tài <strong>{existingTopicOfStudent.maDeTai}</strong>. Mỗi sinh viên chỉ được tham gia tối đa 1 đề tài trong một học kỳ.
+            </div>
+          )}
+
           <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
             <button
               type="button"
@@ -99,6 +112,11 @@ export default function CreateTopicModal({
             <button
               type="submit"
               className="btn-primary"
+              disabled={Boolean(existingTopicOfStudent)}
+              style={{
+                opacity: existingTopicOfStudent ? 0.5 : 1,
+                cursor: existingTopicOfStudent ? 'not-allowed' : 'pointer'
+              }}
             >
               Gửi đề xuất
             </button>

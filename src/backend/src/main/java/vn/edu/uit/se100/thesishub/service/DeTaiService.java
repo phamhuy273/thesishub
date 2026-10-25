@@ -40,6 +40,13 @@ public class DeTaiService {
         SinhVien sv = sinhVienRepository.findByMaSoSinhVien(maSoSinhVien)
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy sinh viên: " + maSoSinhVien));
 
+        boolean daCoDeTai = deTaiRepository.findAll().stream()
+                .filter(d -> d.getTrangThai() != TrangThaiDeTai.GV_TU_CHOI && d.getTrangThai() != TrangThaiDeTai.BO_MON_TU_CHOI)
+                .anyMatch(d -> d.getDanhSachSinhVien().stream().anyMatch(s -> s.getMaSoSinhVien().equalsIgnoreCase(maSoSinhVien)));
+        if (daCoDeTai) {
+            throw new IllegalStateException("Sinh viên " + maSoSinhVien + " đã có đề tài trong học kỳ (Vi phạm bất biến BR-04)");
+        }
+
         gv.tangSoLuong(1);
         DeTaiTotNghiep deTai = new DeTaiTotNghiep(maDeTai, tenDeTai, moTa, gv);
         deTai.themSinhVien(sv);
@@ -58,6 +65,17 @@ public class DeTaiService {
 
         if (!deTai.isDangTimDongDoi()) {
             throw new IllegalStateException("Đề tài không tìm đồng đội hoặc đã đủ thành viên");
+        }
+
+        if (deTai.getDanhSachSinhVien().stream().anyMatch(s -> s.getMaSoSinhVien().equalsIgnoreCase(maSoSinhVienUngTuyen))) {
+            throw new IllegalStateException("Sinh viên " + maSoSinhVienUngTuyen + " đã là thành viên của đề tài này");
+        }
+
+        boolean daCoDeTai = deTaiRepository.findAll().stream()
+                .filter(d -> d.getTrangThai() != TrangThaiDeTai.GV_TU_CHOI && d.getTrangThai() != TrangThaiDeTai.BO_MON_TU_CHOI)
+                .anyMatch(d -> d.getDanhSachSinhVien().stream().anyMatch(s -> s.getMaSoSinhVien().equalsIgnoreCase(maSoSinhVienUngTuyen)));
+        if (daCoDeTai) {
+            throw new IllegalStateException("Sinh viên " + maSoSinhVienUngTuyen + " đã có đề tài trong học kỳ, không thể ứng tuyển (Vi phạm BR-04)");
         }
 
         SinhVien sv = sinhVienRepository.findByMaSoSinhVien(maSoSinhVienUngTuyen)

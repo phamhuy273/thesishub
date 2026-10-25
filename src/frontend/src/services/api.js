@@ -103,6 +103,15 @@ export async function createDeTai(payload) {
     throw new Error('Mã đề tài đã tồn tại');
   }
 
+  const daCoDeTai = list.some(d =>
+    d.trangThai !== 'GV_TU_CHOI' &&
+    d.trangThai !== 'BO_MON_TU_CHOI' &&
+    (d.danhSachSinhVien || []).some(s => s.maSoSinhVien === payload.maSoSinhVien)
+  );
+  if (daCoDeTai) {
+    throw new Error(`Sinh viên ${payload.maSoSinhVien} đã có đề tài trong học kỳ (Vi phạm bất biến BR-04)`);
+  }
+
   const gv = DEFAULT_GV.find(g => g.maGiangVien === payload.maGiangVien) || DEFAULT_GV[0];
   const sv = DEFAULT_SV.find(s => s.maSoSinhVien === payload.maSoSinhVien) || {
     maSoSinhVien: payload.maSoSinhVien,
@@ -157,6 +166,20 @@ export async function applyTeam(maDeTai, maSoSinhVien) {
   if (!target) throw new Error('Không tìm thấy đề tài');
   if (!target.dangTimDongDoi || (target.danhSachSinhVien && target.danhSachSinhVien.length >= 2)) {
     throw new Error('Đề tài không tìm đồng đội hoặc đã đủ 2 thành viên');
+  }
+
+  if (target.danhSachSinhVien && target.danhSachSinhVien.some(s => s.maSoSinhVien === maSoSinhVien)) {
+    throw new Error('Sinh viên đã là thành viên của đề tài này');
+  }
+
+  const daCoDeTaiKhac = list.some(d =>
+    d.maDeTai !== maDeTai &&
+    d.trangThai !== 'GV_TU_CHOI' &&
+    d.trangThai !== 'BO_MON_TU_CHOI' &&
+    (d.danhSachSinhVien || []).some(s => s.maSoSinhVien === maSoSinhVien)
+  );
+  if (daCoDeTaiKhac) {
+    throw new Error(`Sinh viên ${maSoSinhVien} đã có đề tài trong học kỳ, không thể ứng tuyển (Vi phạm BR-04)`);
   }
 
   const sv = DEFAULT_SV.find(s => s.maSoSinhVien === maSoSinhVien) || {

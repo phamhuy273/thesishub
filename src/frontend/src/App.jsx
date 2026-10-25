@@ -79,9 +79,24 @@ export default function App() {
   }, []);
 
   const handleOpenCreateModal = () => {
+    const takenStudents = new Set(
+      (deTaiList || [])
+        .filter(d => d.trangThai !== 'GV_TU_CHOI' && d.trangThai !== 'BO_MON_TU_CHOI')
+        .flatMap(d => (d.danhSachSinhVien || []).map(s => s.maSoSinhVien))
+    );
+    let candidateId = 'SV03';
+    for (let i = 1; i <= 20; i++) {
+      const id = 'SV' + String(i).padStart(2, '0');
+      if (!takenStudents.has(id)) {
+        candidateId = id;
+        break;
+      }
+    }
+
     setCreateForm(prev => ({
       ...prev,
       maDeTai: getNextMaDeTai(deTaiList),
+      maSoSinhVien: candidateId,
       tenDeTai: '',
       moTa: '',
       timDongDoi: true
@@ -93,6 +108,16 @@ export default function App() {
     e.preventDefault();
     if (!createForm.maDeTai.trim() || !createForm.tenDeTai.trim()) {
       showNotification('Vui lòng nhập đầy đủ mã và tên đề tài', true);
+      return;
+    }
+
+    const takenStudents = new Set(
+      (deTaiList || [])
+        .filter(d => d.trangThai !== 'GV_TU_CHOI' && d.trangThai !== 'BO_MON_TU_CHOI')
+        .flatMap(d => (d.danhSachSinhVien || []).map(s => s.maSoSinhVien))
+    );
+    if (takenStudents.has(createForm.maSoSinhVien.trim())) {
+      showNotification(`Sinh viên ${createForm.maSoSinhVien} đã có đề tài trong học kỳ (Vi phạm quy chế BR-04)`, true);
       return;
     }
 
@@ -109,6 +134,16 @@ export default function App() {
   const handleApplySubmit = async (e) => {
     e.preventDefault();
     if (!selectedTopic || !applyStudentId.trim()) return;
+
+    const takenStudents = new Set(
+      (deTaiList || [])
+        .filter(d => d.trangThai !== 'GV_TU_CHOI' && d.trangThai !== 'BO_MON_TU_CHOI')
+        .flatMap(d => (d.danhSachSinhVien || []).map(s => s.maSoSinhVien))
+    );
+    if (takenStudents.has(applyStudentId.trim())) {
+      showNotification(`Sinh viên ${applyStudentId} đã có đề tài trong học kỳ, không thể ứng tuyển đề tài khác (Vi phạm BR-04)`, true);
+      return;
+    }
 
     try {
       await applyTeam(selectedTopic.maDeTai, applyStudentId.trim());
@@ -200,6 +235,7 @@ export default function App() {
         form={createForm}
         setForm={setCreateForm}
         giangVienList={giangVienList}
+        deTaiList={deTaiList}
       />
 
       <ApplyTeamModal

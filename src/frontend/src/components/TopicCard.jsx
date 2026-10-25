@@ -5,7 +5,8 @@ export default function TopicCard({ topic, onApply, onApprove, onViewProgress, c
   const status = STATUS_CONFIG[topic.trangThai] || { text: topic.trangThai, color: '#475569', bg: '#f1f5f9', border: '#cbd5e1' };
   const memberCount = (topic.danhSachSinhVien || []).length;
 
-  const canStudentApply = currentRole === 'student' && topic.dangTimDongDoi && memberCount < 2;
+  const isStudentInThisTopic = (topic.danhSachSinhVien || []).some(s => s.maSoSinhVien === 'SV01');
+  const canStudentApply = currentRole === 'student' && topic.dangTimDongDoi && memberCount < 2 && !isStudentInThisTopic;
   const canInstructorReview = currentRole === 'instructor' && topic.trangThai === 'CHO_GV_DONG_Y';
   const canDepartmentApprove = currentRole === 'department' && topic.trangThai === 'CHO_BO_MON_DUYET';
 
