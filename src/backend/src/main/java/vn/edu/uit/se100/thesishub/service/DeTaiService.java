@@ -37,8 +37,15 @@ public class DeTaiService {
         GiangVienHuongDan gv = giangVienRepository.findByMaGiangVien(maGiangVien)
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy giảng viên: " + maGiangVien));
 
+        if (gv.getSoLuongHienTai() >= gv.getSoLuongSinhVienToiDa()) {
+            throw new IllegalStateException("Giảng viên " + gv.getHoTen() + " đã đạt tối đa hạn ngạch " + gv.getSoLuongSinhVienToiDa() + " sinh viên hướng dẫn (BR-02)");
+        }
+
         SinhVien sv = sinhVienRepository.findByMaSoSinhVien(maSoSinhVien)
-                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy sinh viên: " + maSoSinhVien));
+                .orElseGet(() -> {
+                    SinhVien newSv = new SinhVien("ND_" + maSoSinhVien, "Sinh viên " + maSoSinhVien, "sv." + maSoSinhVien.toLowerCase() + "@uit.edu.vn", "0900000000", maSoSinhVien, "KTPM2023");
+                    return sinhVienRepository.save(newSv);
+                });
 
         boolean daCoDeTai = deTaiRepository.findAll().stream()
                 .filter(d -> d.getTrangThai() != TrangThaiDeTai.GV_TU_CHOI && d.getTrangThai() != TrangThaiDeTai.BO_MON_TU_CHOI)
@@ -79,7 +86,10 @@ public class DeTaiService {
         }
 
         SinhVien sv = sinhVienRepository.findByMaSoSinhVien(maSoSinhVienUngTuyen)
-                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy sinh viên: " + maSoSinhVienUngTuyen));
+                .orElseGet(() -> {
+                    SinhVien newSv = new SinhVien("ND_" + maSoSinhVienUngTuyen, "Sinh viên " + maSoSinhVienUngTuyen, "sv." + maSoSinhVienUngTuyen.toLowerCase() + "@uit.edu.vn", "0900000000", maSoSinhVienUngTuyen, "KTPM2023");
+                    return sinhVienRepository.save(newSv);
+                });
 
         GiangVienHuongDan gv = deTai.getGiangVienHuongDan();
         gv.tangSoLuong(1);

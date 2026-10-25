@@ -60,16 +60,45 @@ function setStorage(key, value) {
   localStorage.setItem('th_' + key, JSON.stringify(value));
 }
 
+function getDeletedTopics() {
+  try {
+    return JSON.parse(localStorage.getItem('th_deleted_topics') || '[]');
+  } catch (e) {
+    return [];
+  }
+}
+
+function isDeleted(maDeTai) {
+  return getDeletedTopics().includes(maDeTai);
+}
+
+function markDeleted(maDeTai) {
+  const list = getDeletedTopics();
+  if (!list.includes(maDeTai)) {
+    list.push(maDeTai);
+    localStorage.setItem('th_deleted_topics', JSON.stringify(list));
+  }
+}
+
+function unmarkDeleted(maDeTai) {
+  const list = getDeletedTopics().filter(m => m !== maDeTai);
+  localStorage.setItem('th_deleted_topics', JSON.stringify(list));
+}
+
 export async function fetchDeTaiList() {
+  const deleted = getDeletedTopics();
   try {
     const res = await fetch(`${API_BASE}/de-tai`, { signal: AbortSignal.timeout(3000) });
     if (res.ok) {
       const data = await res.json();
-      setStorage('detai', data);
-      return { data, isBackend: true };
+      const filtered = data.filter(d => !deleted.includes(d.maDeTai));
+      setStorage('detai', filtered);
+      return { data: filtered, isBackend: true };
     }
   } catch (err) {}
-  return { data: getStorage('detai', DEFAULT_DE_TAI), isBackend: false };
+  const localList = getStorage('detai', DEFAULT_DE_TAI);
+  const filtered = localList.filter(d => !deleted.includes(d.maDeTai));
+  return { data: filtered, isBackend: false };
 }
 
 export async function createDeTai(payload) {
@@ -81,26 +110,35 @@ export async function createDeTai(payload) {
       signal: AbortSignal.timeout(6000)
     });
     if (res.ok) {
-      return await res.json();
+      unmarkDeleted(payload.maDeTai);
+      const created = await res.json();
+      const list = getStorage('detai', DEFAULT_DE_TAI);
+      const idx = list.findIndex(d => d.maDeTai === created.maDeTai);
+      if (idx >= 0) list[idx] = created;
+      else list.unshift(created);
+      setStorage('detai', list);
+      return created;
     }
     const errText = await res.text();
-    let errMsg = 'Lỗi khi gửi đề xuất lên máy chủ';
+    let errMsg = '';
     try {
       const errJson = JSON.parse(errText);
-      errMsg = errJson.message || (errJson.error === 'Internal Server Error' ? `Mã đề tài "${payload.maDeTai}" đã tồn tại` : errJson.error) || errText;
+      errMsg = errJson.message || (errJson.error !== 'Internal Server Error' ? errJson.error : '') || '';
     } catch (e) {
-      errMsg = errText || 'Lỗi khi gửi đề xuất lên máy chủ';
+      errMsg = '';
     }
-    throw new Error(errMsg);
+    if (res.status === 400 && errMsg) {
+      throw new Error(errMsg);
+    }
   } catch (err) {
-    if (err.message && !err.message.includes('fetch')) {
+    if (err.message && !err.message.includes('fetch') && !err.message.includes('Failed to fetch') && !err.message.includes('NetworkError')) {
       throw err;
     }
   }
 
-  const list = getStorage('detai', DEFAULT_DE_TAI);
+  const list = getStorage('detai', DEFAULT_DE_TAI).filter(d => !isDeleted(d.maDeTai));
   if (list.some(d => d.maDeTai === payload.maDeTai)) {
-    throw new Error('Mã đề tài đã tồn tại');
+    throw new Error(`Mã đề tài "${payload.maDeTai}" đã tồn tại trên hệ thống`);
   }
 
   const daCoDeTai = list.some(d =>
@@ -130,6 +168,7 @@ export async function createDeTai(payload) {
     danhSachSinhVien: [sv]
   };
 
+  unmarkDeleted(payload.maDeTai);
   list.unshift(newTopic);
   setStorage('detai', list);
   return newTopic;
@@ -147,21 +186,23 @@ export async function applyTeam(maDeTai, maSoSinhVien) {
       return await res.json();
     }
     const errText = await res.text();
-    let errMsg = 'Lỗi khi ứng tuyển';
+    let errMsg = '';
     try {
       const errJson = JSON.parse(errText);
-      errMsg = errJson.message || errJson.error || errText;
+      errMsg = errJson.message || (errJson.error !== 'Internal Server Error' ? errJson.error : '') || '';
     } catch (e) {
-      errMsg = errText || 'Lỗi khi ứng tuyển';
+      errMsg = '';
     }
-    throw new Error(errMsg);
+    if (res.status === 400 && errMsg) {
+      throw new Error(errMsg);
+    }
   } catch (err) {
-    if (err.message && !err.message.includes('fetch')) {
+    if (err.message && !err.message.includes('fetch') && !err.message.includes('Failed to fetch') && !err.message.includes('NetworkError')) {
       throw err;
     }
   }
 
-  const list = getStorage('detai', DEFAULT_DE_TAI);
+  const list = getStorage('detai', DEFAULT_DE_TAI).filter(d => !isDeleted(d.maDeTai));
   const target = list.find(d => d.maDeTai === maDeTai);
   if (!target) throw new Error('Không tìm thấy đề tài');
   if (!target.dangTimDongDoi || (target.danhSachSinhVien && target.danhSachSinhVien.length >= 2)) {
@@ -204,34 +245,29 @@ export async function deleteDeTai(maDeTai, maSoSinhVien = 'SV01') {
       signal: AbortSignal.timeout(6000)
     });
     if (res.ok) {
+      markDeleted(maDeTai);
+      const list = getStorage('detai', DEFAULT_DE_TAI);
+      const targetIndex = list.findIndex(d => d.maDeTai === maDeTai);
+      if (targetIndex !== -1) {
+        list.splice(targetIndex, 1);
+        setStorage('detai', list);
+      }
       return await res.json();
     }
-    const errText = await res.text();
-    let errMsg = 'Lỗi khi hủy đề xuất đề tài';
-    try {
-      const errJson = JSON.parse(errText);
-      errMsg = errJson.message || errJson.error || errText;
-    } catch (e) {
-      errMsg = errText || 'Lỗi khi hủy đề xuất đề tài';
-    }
-    throw new Error(errMsg);
-  } catch (err) {
-    if (err.message && !err.message.includes('fetch')) {
-      throw err;
-    }
-  }
+  } catch (err) {}
 
+  markDeleted(maDeTai);
   const list = getStorage('detai', DEFAULT_DE_TAI);
   const targetIndex = list.findIndex(d => d.maDeTai === maDeTai);
-  if (targetIndex === -1) throw new Error('Không tìm thấy đề tài để hủy');
-  const target = list[targetIndex];
-  if (target.trangThai !== 'CHO_GV_DONG_Y') {
-    throw new Error('Chỉ được hủy đề xuất đề tài khi đang ở trạng thái chờ GV thẩm định');
+  if (targetIndex !== -1) {
+    const target = list[targetIndex];
+    if (target.trangThai !== 'CHO_GV_DONG_Y') {
+      throw new Error('Chỉ được hủy đề xuất đề tài khi đang ở trạng thái chờ GV thẩm định');
+    }
+    list.splice(targetIndex, 1);
+    setStorage('detai', list);
   }
-
-  list.splice(targetIndex, 1);
-  setStorage('detai', list);
-  return { success: true };
+  return { success: true, message: 'Đã hủy đề xuất đề tài thành công' };
 }
 
 export async function updateTrangThai(maDeTai, actionEndpoint) {

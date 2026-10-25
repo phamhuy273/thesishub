@@ -39,12 +39,12 @@ public class DataInitializer implements CommandLineRunner {
         }
 
         if (sinhVienRepository.count() == 0) {
-            SinhVien sv1 = new SinhVien("ND_SV01", "Nguyễn Văn C", "sv.c@uit.edu.vn", "0911223344", "SV01", "KTPM2023");
-            SinhVien sv2 = new SinhVien("ND_SV02", "Lê Thị D", "sv.d@uit.edu.vn", "0922334455", "SV02", "KTPM2023");
-            SinhVien sv3 = new SinhVien("ND_SV03", "Phạm Văn E", "sv.e@uit.edu.vn", "0933445566", "SV03", "KTPM2023");
-            sinhVienRepository.save(sv1);
-            sinhVienRepository.save(sv2);
-            sinhVienRepository.save(sv3);
+            sinhVienRepository.save(new SinhVien("ND_SV01", "Nguyễn Văn C", "sv.c@uit.edu.vn", "0911223344", "SV01", "KTPM2023"));
+            sinhVienRepository.save(new SinhVien("ND_SV02", "Lê Thị D", "sv.d@uit.edu.vn", "0922334455", "SV02", "KTPM2023"));
+            sinhVienRepository.save(new SinhVien("ND_SV03", "Phạm Văn E", "sv.e@uit.edu.vn", "0933445566", "SV03", "KTPM2023"));
+            sinhVienRepository.save(new SinhVien("ND_SV04", "Hoàng Văn F", "sv.f@uit.edu.vn", "0944556677", "SV04", "KTPM2023"));
+            sinhVienRepository.save(new SinhVien("ND_SV05", "Đỗ Thị G", "sv.g@uit.edu.vn", "0955667788", "SV05", "KTPM2023"));
+            sinhVienRepository.save(new SinhVien("ND_SV06", "Vũ Minh H", "sv.h@uit.edu.vn", "0966778899", "SV06", "KTPM2023"));
         }
 
         if (deTaiRepository.count() == 0) {

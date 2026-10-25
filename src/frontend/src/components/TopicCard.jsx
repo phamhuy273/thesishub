@@ -7,7 +7,7 @@ export default function TopicCard({ topic, onApply, onApprove, onViewProgress, o
 
   const isStudentInThisTopic = (topic.danhSachSinhVien || []).some(s => s.maSoSinhVien === 'SV01');
   const canStudentApply = currentRole === 'student' && topic.dangTimDongDoi && memberCount < 2 && !isStudentInThisTopic;
-  const canStudentDelete = currentRole === 'student' && topic.trangThai === 'CHO_GV_DONG_Y' && isStudentInThisTopic;
+  const canStudentDelete = currentRole === 'student' && topic.trangThai === 'CHO_GV_DONG_Y' && (isStudentInThisTopic || (topic.danhSachSinhVien || []).length <= 1);
   const canInstructorReview = currentRole === 'instructor' && topic.trangThai === 'CHO_GV_DONG_Y';
   const canDepartmentApprove = currentRole === 'department' && topic.trangThai === 'CHO_BO_MON_DUYET';
 

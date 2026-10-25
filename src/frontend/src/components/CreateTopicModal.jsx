@@ -17,6 +17,13 @@ export default function CreateTopicModal({
     (d.danhSachSinhVien || []).some(s => s.maSoSinhVien === form.maSoSinhVien?.trim())
   );
 
+  const selectedGVCount = (deTaiList || [])
+    .filter(d => d.trangThai !== 'GV_TU_CHOI' && d.trangThai !== 'BO_MON_TU_CHOI' && d.giangVienHuongDan?.maGiangVien === form.maGiangVien)
+    .reduce((sum, d) => sum + (d.danhSachSinhVien || []).length, 0);
+  const isSelectedGVFull = selectedGVCount >= 10;
+
+  const isDuplicateMaDeTai = (deTaiList || []).some(d => d.maDeTai?.toLowerCase() === form.maDeTai?.trim().toLowerCase());
+
   return (
     <div style={{ position: 'fixed', inset: 0, background: 'rgba(15, 23, 42, 0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '1rem' }}>
       <div style={{ background: '#fff', borderRadius: '8px', maxWidth: '580px', width: '100%', padding: '1.75rem', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)' }}>
@@ -65,11 +72,17 @@ export default function CreateTopicModal({
               onChange={(e) => setForm({ ...form, maGiangVien: e.target.value })}
               style={{ width: '100%', padding: '0.5rem', borderRadius: '4px', border: '1px solid #cbd5e1', fontSize: '0.85rem', boxSizing: 'border-box' }}
             >
-              {giangVienList.map((gv) => (
-                <option key={gv.maGiangVien} value={gv.maGiangVien}>
-                  {gv.hoTen} ({gv.maGiangVien})
-                </option>
-              ))}
+              {giangVienList.map((gv) => {
+                const count = (deTaiList || [])
+                  .filter(d => d.trangThai !== 'GV_TU_CHOI' && d.trangThai !== 'BO_MON_TU_CHOI' && d.giangVienHuongDan?.maGiangVien === gv.maGiangVien)
+                  .reduce((sum, d) => sum + (d.danhSachSinhVien || []).length, 0);
+                const isFull = count >= (gv.soLuongSinhVienToiDa || 10);
+                return (
+                  <option key={gv.maGiangVien} value={gv.maGiangVien} disabled={isFull}>
+                    {gv.hoTen} ({gv.maGiangVien}) — {isFull ? 'Đã đủ hạn ngạch 10/10 (BR-02)' : `Còn ${10 - count} chỗ`}
+                  </option>
+                );
+              })}
             </select>
           </div>
 
@@ -95,6 +108,18 @@ export default function CreateTopicModal({
             </label>
           </div>
 
+          {isDuplicateMaDeTai && (
+            <div style={{ color: '#b91c1c', background: '#fef2f2', border: '1px solid #fecaca', borderRadius: '8px', padding: '10px 14px', fontSize: '13px', marginBottom: '1.25rem', lineHeight: 1.4 }}>
+              ⚠️ Mã đề tài <strong>{form.maDeTai}</strong> đã tồn tại trên hệ thống. Vui lòng nhập mã khác.
+            </div>
+          )}
+
+          {isSelectedGVFull && (
+            <div style={{ color: '#b91c1c', background: '#fef2f2', border: '1px solid #fecaca', borderRadius: '8px', padding: '10px 14px', fontSize: '13px', marginBottom: '1.25rem', lineHeight: 1.4 }}>
+              ⚠️ <strong>Cảnh báo quy chế BR-02:</strong> Giảng viên đã đạt giới hạn tối đa 10 sinh viên hướng dẫn. Vui lòng chọn giảng viên khác.
+            </div>
+          )}
+
           {existingTopicOfStudent && (
             <div style={{ color: '#b91c1c', background: '#fef2f2', border: '1px solid #fecaca', borderRadius: '8px', padding: '10px 14px', fontSize: '13px', marginBottom: '1.25rem', lineHeight: 1.4 }}>
               ⚠️ <strong>Cảnh báo quy chế BR-04:</strong> Sinh viên <strong>{form.maSoSinhVien}</strong> hiện đã tham gia đề tài <strong>{existingTopicOfStudent.maDeTai}</strong>. Mỗi sinh viên chỉ được tham gia tối đa 1 đề tài trong một học kỳ.
@@ -112,10 +137,10 @@ export default function CreateTopicModal({
             <button
               type="submit"
               className="btn-primary"
-              disabled={Boolean(existingTopicOfStudent)}
+              disabled={Boolean(existingTopicOfStudent || isSelectedGVFull || isDuplicateMaDeTai)}
               style={{
-                opacity: existingTopicOfStudent ? 0.5 : 1,
-                cursor: existingTopicOfStudent ? 'not-allowed' : 'pointer'
+                opacity: (existingTopicOfStudent || isSelectedGVFull || isDuplicateMaDeTai) ? 0.5 : 1,
+                cursor: (existingTopicOfStudent || isSelectedGVFull || isDuplicateMaDeTai) ? 'not-allowed' : 'pointer'
               }}
             >
               Gửi đề xuất

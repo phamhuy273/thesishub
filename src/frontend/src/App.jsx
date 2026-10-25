@@ -85,18 +85,28 @@ export default function App() {
         .filter(d => d.trangThai !== 'GV_TU_CHOI' && d.trangThai !== 'BO_MON_TU_CHOI')
         .flatMap(d => (d.danhSachSinhVien || []).map(s => s.maSoSinhVien))
     );
-    let candidateId = 'SV03';
-    for (let i = 1; i <= 20; i++) {
-      const id = 'SV' + String(i).padStart(2, '0');
-      if (!takenStudents.has(id)) {
-        candidateId = id;
-        break;
+    let candidateId = 'SV01';
+    if (takenStudents.has('SV01')) {
+      for (let i = 2; i <= 20; i++) {
+        const id = 'SV' + String(i).padStart(2, '0');
+        if (!takenStudents.has(id)) {
+          candidateId = id;
+          break;
+        }
       }
     }
+
+    const availableGV = (giangVienList || []).find(g => {
+      const studentCount = (deTaiList || [])
+        .filter(d => d.trangThai !== 'GV_TU_CHOI' && d.trangThai !== 'BO_MON_TU_CHOI' && d.giangVienHuongDan?.maGiangVien === g.maGiangVien)
+        .reduce((sum, d) => sum + (d.danhSachSinhVien || []).length, 0);
+      return studentCount < (g.soLuongSinhVienToiDa || 10);
+    }) || giangVienList[0];
 
     setCreateForm(prev => ({
       ...prev,
       maDeTai: getNextMaDeTai(deTaiList),
+      maGiangVien: availableGV?.maGiangVien || 'GV01',
       maSoSinhVien: candidateId,
       tenDeTai: '',
       moTa: '',
@@ -195,7 +205,9 @@ export default function App() {
     if (!confirmDelete) return;
 
     try {
-      await deleteDeTai(topic.maDeTai, 'SV01');
+      const studentInTopic = (topic.danhSachSinhVien || []).find(s => s.maSoSinhVien === 'SV01') || (topic.danhSachSinhVien || [])[0];
+      const maSoSinhVien = studentInTopic?.maSoSinhVien || 'SV01';
+      await deleteDeTai(topic.maDeTai, maSoSinhVien);
       showNotification(`Đã hủy đề xuất đề tài ${topic.maDeTai} thành công`);
       await loadData();
     } catch (err) {
