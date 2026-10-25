@@ -1,7 +1,7 @@
 import React from 'react';
 import { STATUS_CONFIG } from '../constants/status';
 
-export default function TopicCard({ topic, onApply, onApprove, currentRole }) {
+export default function TopicCard({ topic, onApply, onApprove, onViewProgress, currentRole }) {
   const status = STATUS_CONFIG[topic.trangThai] || { text: topic.trangThai, color: '#475569', bg: '#f1f5f9', border: '#cbd5e1' };
   const memberCount = (topic.danhSachSinhVien || []).length;
 
@@ -121,15 +121,13 @@ export default function TopicCard({ topic, onApply, onApprove, currentRole }) {
           </button>
         )}
 
-        {!canStudentApply && !canInstructorReview && !canDepartmentApprove && (
-          <button
-            onClick={() => onApprove(topic)}
-            className="btn-outline"
-            style={{ flex: 1 }}
-          >
-            Xem xét duyệt
-          </button>
-        )}
+        <button
+          onClick={() => onViewProgress(topic)}
+          className="btn-outline"
+          style={{ flex: (canStudentApply || canInstructorReview || canDepartmentApprove) ? '0 0 auto' : 1 }}
+        >
+          {currentRole === 'student' ? 'Xem tiến độ' : 'Xem hồ sơ'}
+        </button>
       </div>
     </div>
   );

@@ -43,13 +43,15 @@ export default function Navbar({ activeTab, setActiveTab, onOpenCreateModal, cur
               </select>
             </div>
 
-            <button
-              onClick={onOpenCreateModal}
-              className="btn-primary"
-              style={{ padding: '6px 12px', fontSize: '0.825rem' }}
-            >
-              + Nộp đề xuất mới
-            </button>
+            {currentRole === 'student' && (
+              <button
+                onClick={onOpenCreateModal}
+                className="btn-primary"
+                style={{ padding: '6px 12px', fontSize: '0.825rem' }}
+              >
+                + Nộp đề xuất mới
+              </button>
+            )}
           </div>
         </div>
       </header>

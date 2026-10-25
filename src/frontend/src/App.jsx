@@ -7,6 +7,7 @@ import RegulationsPage from './pages/RegulationsPage';
 import CreateTopicModal from './components/CreateTopicModal';
 import ApplyTeamModal from './components/ApplyTeamModal';
 import ApprovalModal from './components/ApprovalModal';
+import TopicProgressModal from './components/TopicProgressModal';
 import {
   fetchDeTaiList,
   createDeTai,
@@ -25,7 +26,9 @@ export default function App() {
   const [openCreateModal, setOpenCreateModal] = useState(false);
   const [openApplyModal, setOpenApplyModal] = useState(false);
   const [openApprovalModal, setOpenApprovalModal] = useState(false);
+  const [openProgressModal, setOpenProgressModal] = useState(false);
   const [selectedTopic, setSelectedTopic] = useState(null);
+  const [progressTopic, setProgressTopic] = useState(null);
 
   const [applyStudentId, setApplyStudentId] = useState('SV02');
   const [createForm, setCreateForm] = useState({
@@ -139,6 +142,11 @@ export default function App() {
     setOpenApprovalModal(true);
   };
 
+  const handleOpenProgress = (topic) => {
+    setProgressTopic(topic);
+    setOpenProgressModal(true);
+  };
+
   return (
     <div style={{ minHeight: '100vh', background: 'var(--bg)', color: 'var(--text)' }}>
       <Toast toast={toast} />
@@ -158,6 +166,7 @@ export default function App() {
             loading={loading}
             onApply={handleOpenApply}
             onApprove={handleOpenApprove}
+            onViewProgress={handleOpenProgress}
             currentRole={currentRole}
           />
         )}
@@ -197,6 +206,13 @@ export default function App() {
         onClose={() => setOpenApprovalModal(false)}
         onSubmit={handleApprovalSubmit}
         selectedTopic={selectedTopic}
+        currentRole={currentRole}
+      />
+
+      <TopicProgressModal
+        isOpen={openProgressModal}
+        onClose={() => setOpenProgressModal(false)}
+        topic={progressTopic}
       />
     </div>
   );

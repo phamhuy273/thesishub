@@ -6,6 +6,7 @@ export default function TopicListPage({
   loading,
   onApply,
   onApprove,
+  onViewProgress,
   currentRole
 }) {
   const [filter, setFilter] = useState('ALL');
@@ -110,6 +111,7 @@ export default function TopicListPage({
               topic={topic}
               onApply={onApply}
               onApprove={onApprove}
+              onViewProgress={onViewProgress}
               currentRole={currentRole}
             />
           ))}
