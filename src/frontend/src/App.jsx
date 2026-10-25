@@ -20,6 +20,7 @@ export default function App() {
   const [deTaiList, setDeTaiList] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('topics');
+  const [topicFilter, setTopicFilter] = useState('ALL');
   const [toast, setToast] = useState(null);
   const [currentRole, setCurrentRole] = useState('student');
 
@@ -147,6 +148,13 @@ export default function App() {
     setOpenProgressModal(true);
   };
 
+  const handleNavigate = (tab, filter = 'ALL') => {
+    setActiveTab(tab);
+    if (filter) {
+      setTopicFilter(filter);
+    }
+  };
+
   return (
     <div style={{ minHeight: '100vh', background: 'var(--bg)', color: 'var(--text)' }}>
       <Toast toast={toast} />
@@ -168,6 +176,8 @@ export default function App() {
             onApprove={handleOpenApprove}
             onViewProgress={handleOpenProgress}
             currentRole={currentRole}
+            filter={topicFilter}
+            setFilter={setTopicFilter}
           />
         )}
 
@@ -179,7 +189,7 @@ export default function App() {
         )}
 
         {activeTab === 'regulations' && (
-          <RegulationsPage />
+          <RegulationsPage onNavigate={handleNavigate} />
         )}
       </main>
 

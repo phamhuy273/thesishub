@@ -7,9 +7,13 @@ export default function TopicListPage({
   onApply,
   onApprove,
   onViewProgress,
-  currentRole
+  currentRole,
+  filter: externalFilter,
+  setFilter: externalSetFilter
 }) {
-  const [filter, setFilter] = useState('ALL');
+  const [internalFilter, setInternalFilter] = useState('ALL');
+  const filter = externalFilter !== undefined ? externalFilter : internalFilter;
+  const setFilter = externalSetFilter || setInternalFilter;
   const [search, setSearch] = useState('');
 
   const countAll = deTaiList.length;
