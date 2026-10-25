@@ -7,6 +7,7 @@ export default function TopicListPage({
   onApply,
   onApprove,
   onViewProgress,
+  onDeleteTopic,
   currentRole,
   filter: externalFilter,
   setFilter: externalSetFilter
@@ -116,6 +117,7 @@ export default function TopicListPage({
               onApply={onApply}
               onApprove={onApprove}
               onViewProgress={onViewProgress}
+              onDelete={onDeleteTopic}
               currentRole={currentRole}
             />
           ))}

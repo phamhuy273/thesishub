@@ -145,6 +145,29 @@ public class DeTaiService {
         return deTaiRepository.save(deTai);
     }
 
+    public void huyDeTai(String maDeTai, String maSoSinhVien) {
+        DeTaiTotNghiep deTai = deTaiRepository.findByMaDeTai(maDeTai)
+                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy đề tài: " + maDeTai));
+
+        if (deTai.getTrangThai() != TrangThaiDeTai.CHO_GV_DONG_Y) {
+            throw new IllegalStateException("Chỉ được hủy đề xuất đề tài khi đang ở trạng thái chờ GV thẩm định");
+        }
+
+        if (maSoSinhVien != null && !maSoSinhVien.isBlank()) {
+            boolean isMember = deTai.getDanhSachSinhVien().stream()
+                    .anyMatch(s -> s.getMaSoSinhVien().equalsIgnoreCase(maSoSinhVien));
+            if (!isMember) {
+                throw new IllegalStateException("Chỉ sinh viên trong nhóm mới có quyền hủy đề xuất này");
+            }
+        }
+
+        GiangVienHuongDan gv = deTai.getGiangVienHuongDan();
+        gv.giamSoLuong(deTai.getDanhSachSinhVien().size());
+        giangVienRepository.save(gv);
+
+        deTaiRepository.delete(deTai);
+    }
+
     @Transactional(readOnly = true)
     public List<DeTaiTotNghiep> layTatCaDeTai() {
         return deTaiRepository.findAll();

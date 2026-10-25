@@ -12,6 +12,7 @@ import {
   fetchDeTaiList,
   createDeTai,
   applyTeam,
+  deleteDeTai,
   updateTrangThai,
   getGiangVienList
 } from './services/api';
@@ -135,6 +136,11 @@ export default function App() {
     e.preventDefault();
     if (!selectedTopic || !applyStudentId.trim()) return;
 
+    if ((selectedTopic.danhSachSinhVien || []).some(s => s.maSoSinhVien === applyStudentId.trim())) {
+      showNotification(`Sinh viên ${applyStudentId.trim()} đã là thành viên của đề tài này`, true);
+      return;
+    }
+
     const takenStudents = new Set(
       (deTaiList || [])
         .filter(d => d.trangThai !== 'GV_TU_CHOI' && d.trangThai !== 'BO_MON_TU_CHOI')
@@ -183,6 +189,20 @@ export default function App() {
     setOpenProgressModal(true);
   };
 
+  const handleDeleteTopic = async (topic) => {
+    if (!topic) return;
+    const confirmDelete = window.confirm(`Bạn có chắc chắn muốn hủy đề xuất đề tài "${topic.maDeTai} — ${topic.tenDeTai}"? Hành động này sẽ hoàn trả hạn ngạch cho giảng viên và bạn có thể nộp đề xuất mới.`);
+    if (!confirmDelete) return;
+
+    try {
+      await deleteDeTai(topic.maDeTai, 'SV01');
+      showNotification(`Đã hủy đề xuất đề tài ${topic.maDeTai} thành công`);
+      await loadData();
+    } catch (err) {
+      showNotification(err.message || 'Lỗi khi hủy đề xuất đề tài', true);
+    }
+  };
+
   const handleNavigate = (tab, filter = 'ALL') => {
     setActiveTab(tab);
     if (filter) {
@@ -210,6 +230,7 @@ export default function App() {
             onApply={handleOpenApply}
             onApprove={handleOpenApprove}
             onViewProgress={handleOpenProgress}
+            onDeleteTopic={handleDeleteTopic}
             currentRole={currentRole}
             filter={topicFilter}
             setFilter={setTopicFilter}

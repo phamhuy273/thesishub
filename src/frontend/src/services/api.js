@@ -197,6 +197,43 @@ export async function applyTeam(maDeTai, maSoSinhVien) {
   return target;
 }
 
+export async function deleteDeTai(maDeTai, maSoSinhVien = 'SV01') {
+  try {
+    const res = await fetch(`${API_BASE}/de-tai/${maDeTai}?maSoSinhVien=${maSoSinhVien}`, {
+      method: 'DELETE',
+      signal: AbortSignal.timeout(6000)
+    });
+    if (res.ok) {
+      return await res.json();
+    }
+    const errText = await res.text();
+    let errMsg = 'Lỗi khi hủy đề xuất đề tài';
+    try {
+      const errJson = JSON.parse(errText);
+      errMsg = errJson.message || errJson.error || errText;
+    } catch (e) {
+      errMsg = errText || 'Lỗi khi hủy đề xuất đề tài';
+    }
+    throw new Error(errMsg);
+  } catch (err) {
+    if (err.message && !err.message.includes('fetch')) {
+      throw err;
+    }
+  }
+
+  const list = getStorage('detai', DEFAULT_DE_TAI);
+  const targetIndex = list.findIndex(d => d.maDeTai === maDeTai);
+  if (targetIndex === -1) throw new Error('Không tìm thấy đề tài để hủy');
+  const target = list[targetIndex];
+  if (target.trangThai !== 'CHO_GV_DONG_Y') {
+    throw new Error('Chỉ được hủy đề xuất đề tài khi đang ở trạng thái chờ GV thẩm định');
+  }
+
+  list.splice(targetIndex, 1);
+  setStorage('detai', list);
+  return { success: true };
+}
+
 export async function updateTrangThai(maDeTai, actionEndpoint) {
   try {
     const res = await fetch(`${API_BASE}/de-tai/${maDeTai}/${actionEndpoint}`, {

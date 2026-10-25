@@ -3,14 +3,17 @@ package vn.edu.uit.se100.thesishub.controller;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
+import java.util.Map;
 import vn.edu.uit.se100.thesishub.domain.DeTaiTotNghiep;
 import vn.edu.uit.se100.thesishub.domain.TrangThaiDeTai;
 import vn.edu.uit.se100.thesishub.dto.DangKyDeTaiRequest;
@@ -84,5 +87,11 @@ public class DeTaiController {
     @PutMapping("/{maDeTai}/bo-mon-tu-choi")
     public ResponseEntity<DeTaiTotNghiep> boMonTuChoi(@PathVariable String maDeTai) {
         return ResponseEntity.ok(deTaiService.boMonTuChoi(maDeTai));
+    }
+
+    @DeleteMapping("/{maDeTai}")
+    public ResponseEntity<?> huyDeTai(@PathVariable String maDeTai, @RequestParam(required = false, defaultValue = "SV01") String maSoSinhVien) {
+        deTaiService.huyDeTai(maDeTai, maSoSinhVien);
+        return ResponseEntity.ok(Map.of("message", "Đã hủy đề xuất đề tài thành công"));
     }
 }

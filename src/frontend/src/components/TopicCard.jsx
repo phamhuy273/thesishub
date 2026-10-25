@@ -1,12 +1,13 @@
 import React from 'react';
 import { STATUS_CONFIG } from '../constants/status';
 
-export default function TopicCard({ topic, onApply, onApprove, onViewProgress, currentRole }) {
+export default function TopicCard({ topic, onApply, onApprove, onViewProgress, onDelete, currentRole }) {
   const status = STATUS_CONFIG[topic.trangThai] || { text: topic.trangThai, color: '#475569', bg: '#f1f5f9', border: '#cbd5e1' };
   const memberCount = (topic.danhSachSinhVien || []).length;
 
   const isStudentInThisTopic = (topic.danhSachSinhVien || []).some(s => s.maSoSinhVien === 'SV01');
   const canStudentApply = currentRole === 'student' && topic.dangTimDongDoi && memberCount < 2 && !isStudentInThisTopic;
+  const canStudentDelete = currentRole === 'student' && topic.trangThai === 'CHO_GV_DONG_Y' && isStudentInThisTopic;
   const canInstructorReview = currentRole === 'instructor' && topic.trangThai === 'CHO_GV_DONG_Y';
   const canDepartmentApprove = currentRole === 'department' && topic.trangThai === 'CHO_BO_MON_DUYET';
 
@@ -102,6 +103,23 @@ export default function TopicCard({ topic, onApply, onApprove, onViewProgress, c
           </button>
         )}
 
+        {canStudentDelete && (
+          <button
+            onClick={() => onDelete && onDelete(topic)}
+            className="btn-outline"
+            style={{
+              flex: 1,
+              borderColor: '#fca5a5',
+              color: '#dc2626',
+              background: '#fff'
+            }}
+            onMouseEnter={(e) => { e.currentTarget.style.background = '#fef2f2'; }}
+            onMouseLeave={(e) => { e.currentTarget.style.background = '#fff'; }}
+          >
+            Hủy đề xuất
+          </button>
+        )}
+
         {canInstructorReview && (
           <button
             onClick={() => onApprove(topic)}
@@ -125,7 +143,7 @@ export default function TopicCard({ topic, onApply, onApprove, onViewProgress, c
         <button
           onClick={() => onViewProgress(topic)}
           className="btn-outline"
-          style={{ flex: (canStudentApply || canInstructorReview || canDepartmentApprove) ? '0 0 auto' : 1 }}
+          style={{ flex: (canStudentApply || canStudentDelete || canInstructorReview || canDepartmentApprove) ? '0 0 auto' : 1 }}
         >
           {currentRole === 'student' ? 'Xem tiến độ' : 'Xem hồ sơ'}
         </button>

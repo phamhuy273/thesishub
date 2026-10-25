@@ -18,6 +18,11 @@ export default function ApplyTeamModal({
           Ứng tuyển tham gia đề tài: <strong>{selectedTopic.maDeTai} — {selectedTopic.tenDeTai}</strong>
         </p>
 
+        <div style={{ marginBottom: '1rem', padding: '0.5rem 0.75rem', background: '#f8fafc', borderRadius: '6px', fontSize: '0.8rem', border: '1px solid #e2e8f0' }}>
+          <span style={{ fontWeight: 600, color: '#334155' }}>Thành viên hiện tại: </span>
+          <span>{(selectedTopic.danhSachSinhVien || []).map(s => `${s.hoTen} (${s.maSoSinhVien})`).join(', ') || 'Chưa có'}</span>
+        </div>
+
         <form onSubmit={onSubmit}>
           <div style={{ marginBottom: '1.25rem' }}>
             <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, marginBottom: '0.35rem' }}>Mã số sinh viên ứng tuyển</label>
