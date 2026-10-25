@@ -37,8 +37,8 @@ public class DeTaiService {
         GiangVienHuongDan gv = giangVienRepository.findByMaGiangVien(maGiangVien)
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy giảng viên: " + maGiangVien));
 
-        if (gv.getSoLuongHienTai() >= gv.getSoLuongSinhVienToiDa()) {
-            throw new IllegalStateException("Giảng viên " + gv.getHoTen() + " đã đạt tối đa hạn ngạch " + gv.getSoLuongSinhVienToiDa() + " sinh viên hướng dẫn (BR-02)");
+        if (!gv.coTheNhanThem()) {
+            throw new IllegalStateException("Giảng viên " + gv.getHoTen() + " đã đạt tối đa hạn ngạch " + gv.getSoLuongSinhVienToiDa() + " sinh viên hướng dẫn (BR-01)");
         }
 
         SinhVien sv = sinhVienRepository.findByMaSoSinhVien(maSoSinhVien)
@@ -92,6 +92,9 @@ public class DeTaiService {
                 });
 
         GiangVienHuongDan gv = deTai.getGiangVienHuongDan();
+        if (!gv.coTheNhanThem()) {
+            throw new IllegalStateException("Giảng viên " + gv.getHoTen() + " đã đạt tối đa hạn ngạch " + gv.getSoLuongSinhVienToiDa() + " sinh viên hướng dẫn (BR-01)");
+        }
         gv.tangSoLuong(1);
         giangVienRepository.save(gv);
 
@@ -107,7 +110,7 @@ public class DeTaiService {
             throw new IllegalStateException("Trạng thái đề tài không hợp lệ để GV duyệt");
         }
 
-        deTai.capNhatTrangThai(TrangThaiDeTai.CHO_BO_MON_DUYET);
+        deTai.chuyenLenBoMon(null);
         return deTaiRepository.save(deTai);
     }
 
@@ -119,7 +122,7 @@ public class DeTaiService {
             throw new IllegalStateException("Trạng thái đề tài không hợp lệ để GV từ chối");
         }
 
-        deTai.capNhatTrangThai(TrangThaiDeTai.GV_TU_CHOI);
+        deTai.tuChoi(null);
         GiangVienHuongDan gv = deTai.getGiangVienHuongDan();
         gv.giamSoLuong(deTai.getDanhSachSinhVien().size());
         giangVienRepository.save(gv);
@@ -135,7 +138,7 @@ public class DeTaiService {
             throw new IllegalStateException("Trạng thái đề tài không hợp lệ để Bộ môn duyệt");
         }
 
-        deTai.capNhatTrangThai(TrangThaiDeTai.DUOC_BAO_VE);
+        deTai.boMonPheDuyet(null);
         return deTaiRepository.save(deTai);
     }
 
@@ -147,7 +150,7 @@ public class DeTaiService {
             throw new IllegalStateException("Trạng thái đề tài không hợp lệ để Bộ môn từ chối");
         }
 
-        deTai.capNhatTrangThai(TrangThaiDeTai.BO_MON_TU_CHOI);
+        deTai.boMonTuChoi(null);
         GiangVienHuongDan gv = deTai.getGiangVienHuongDan();
         gv.giamSoLuong(deTai.getDanhSachSinhVien().size());
         giangVienRepository.save(gv);

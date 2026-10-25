@@ -77,6 +77,26 @@ public class DeTaiTotNghiep {
         this.trangThai = trangThaiMoi;
     }
 
+    public void chuyenLenBoMon(String yKien) {
+        this.trangThai = TrangThaiDeTai.CHO_BO_MON_DUYET;
+    }
+
+    public void tuChoi(String yKien) {
+        this.trangThai = TrangThaiDeTai.GV_TU_CHOI;
+    }
+
+    public void boMonPheDuyet(String yKien) {
+        this.trangThai = TrangThaiDeTai.DUOC_BAO_VE;
+    }
+
+    public void boMonTuChoi(String yKien) {
+        this.trangThai = TrangThaiDeTai.BO_MON_TU_CHOI;
+    }
+
+    public int getSoLuongSinhVien() {
+        return this.danhSachSinhVien != null ? this.danhSachSinhVien.size() : 0;
+    }
+
     public void batTimDongDoi() {
         if (danhSachSinhVien.size() >= 2) {
             throw new IllegalStateException("Nhom da du 2 thanh vien, khong the tim dong doi");
