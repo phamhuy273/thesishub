@@ -85,6 +85,21 @@ function unmarkDeleted(maDeTai) {
   localStorage.setItem('th_deleted_topics', JSON.stringify(list));
 }
 
+function isNetworkOrTimeoutError(err) {
+  if (!err) return false;
+  if (err.name === 'TimeoutError' || err.name === 'AbortError') return true;
+  const msg = (err.message || '').toLowerCase();
+  return (
+    msg.includes('fetch') ||
+    msg.includes('timeout') ||
+    msg.includes('timed out') ||
+    msg.includes('network') ||
+    msg.includes('failed to fetch') ||
+    msg.includes('aborted') ||
+    msg.includes('signal')
+  );
+}
+
 export async function fetchDeTaiList() {
   const deleted = getDeletedTopics();
   try {
@@ -131,7 +146,7 @@ export async function createDeTai(payload) {
       throw new Error(errMsg);
     }
   } catch (err) {
-    if (err.message && !err.message.includes('fetch') && !err.message.includes('Failed to fetch') && !err.message.includes('NetworkError')) {
+    if (!isNetworkOrTimeoutError(err)) {
       throw err;
     }
   }
@@ -197,7 +212,7 @@ export async function applyTeam(maDeTai, maSoSinhVien) {
       throw new Error(errMsg);
     }
   } catch (err) {
-    if (err.message && !err.message.includes('fetch') && !err.message.includes('Failed to fetch') && !err.message.includes('NetworkError')) {
+    if (!isNetworkOrTimeoutError(err)) {
       throw err;
     }
   }
@@ -287,9 +302,11 @@ export async function updateTrangThai(maDeTai, actionEndpoint) {
     } catch (e) {
       errMsg = errText || 'Lỗi khi cập nhật trạng thái';
     }
-    throw new Error(errMsg);
+    if (res.status === 400 && errMsg) {
+      throw new Error(errMsg);
+    }
   } catch (err) {
-    if (err.message && !err.message.includes('fetch')) {
+    if (!isNetworkOrTimeoutError(err)) {
       throw err;
     }
   }

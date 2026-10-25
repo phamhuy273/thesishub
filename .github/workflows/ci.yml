@@ -38,3 +38,17 @@ jobs:
           cd src/frontend
           npm ci || npm install
           npm run build
+
+  system-logic-test:
+    name: System Logic & Invariant Test (Pytest)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install Pytest
+        run: pip install pytest
+      - name: Run All Logic Tests
+        run: python -m pytest tests -v
