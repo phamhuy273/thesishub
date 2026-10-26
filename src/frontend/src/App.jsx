@@ -261,6 +261,15 @@ export default function App() {
         )}
       </main>
 
+      <footer style={{ borderTop: '1px solid var(--border)', background: 'var(--surface)', padding: '1.25rem 1rem', textAlign: 'center', fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+        <div className="container" style={{ display: 'flex', flexDirection: 'column', gap: '4px', alignItems: 'center' }}>
+          <div>ThesisHub — Hệ thống Quản lý & Xét duyệt Đồ án Tốt nghiệp · ĐH Công nghệ Thông tin (UIT)</div>
+          <div>
+            Chạy từ commit: <span className="code-pill" style={{ fontSize: '11px', padding: '1px 6px' }}>0595e08 (goi-3)</span> · Hạ tầng: Vercel & Render · Quản trị: N14-A
+          </div>
+        </div>
+      </footer>
+
       <CreateTopicModal
         isOpen={openCreateModal}
         onClose={() => setOpenCreateModal(false)}
