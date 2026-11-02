@@ -1,0 +1,49 @@
+stateDiagram-v2
+  %% Phụ trách: N14-B
+  %% Lớp: DeTaiTotNghiep
+  %% Truy vết: FR-01, FR-03, FR-04, FR-06, FR-07, FR-10 · BR-01, BR-03, BR-05
+  %% Nguồn: docs/dac-ta-UC-03.md, docs/phong-van.md:64-67, diagrams/seq-xet-duyet.mmd
+
+  state "Chờ GV duyệt" as CHO_GV_DONG_Y
+  state "Yêu cầu hiệu chỉnh (ân hạn 72h)" as YEU_CAU_HIEU_CHINH
+  state "Chờ Bộ môn duyệt" as CHO_BO_MON_DUYET
+  state "Được bảo vệ" as DUOC_BAO_VE
+  state "Đã hoàn thành" as DA_HOAN_THANH
+  state "GV từ chối" as GV_TU_CHOI
+  state "Bộ môn từ chối" as BO_MON_TU_CHOI
+  state "Đã hủy" as DA_HUY
+
+  %% ===== Luồng chính =====
+  [*] --> CHO_GV_DONG_Y : Sinh viên nộp đề xuất (FR-01)
+  CHO_GV_DONG_Y --> CHO_BO_MON_DUYET : chuyenLenBoMon(yKien) [GV đồng ý và còn hạn mức, BR-01, BR-03]
+  CHO_BO_MON_DUYET --> DUOC_BAO_VE : boMonPheDuyet(yKien) [TBM phê duyệt]
+  DUOC_BAO_VE --> DA_HOAN_THANH : hoanThanh() [Hội đồng nghiệm thu xong (FR-07)]
+  DA_HOAN_THANH --> [*]
+
+  %% ===== Luồng ân hạn hiệu chỉnh (tối đa 1 lần) =====
+  CHO_GV_DONG_Y --> YEU_CAU_HIEU_CHINH : yeuCauHieuChinh(yKien, 72) [soLanChinhSua < 1] / capYeuCau = GV
+  CHO_BO_MON_DUYET --> YEU_CAU_HIEU_CHINH : yeuCauHieuChinh(yKien, 72) [soLanChinhSua < 1] / capYeuCau = BO_MON
+  YEU_CAU_HIEU_CHINH --> CHO_GV_DONG_Y : nopBanHieuChinh() [trong 72h và capYeuCau = GV] / soLanChinhSua++
+  YEU_CAU_HIEU_CHINH --> CHO_BO_MON_DUYET : nopBanHieuChinh() [trong 72h và capYeuCau = BO_MON] / soLanChinhSua++
+
+  %% ===== Luồng từ chối =====
+  CHO_GV_DONG_Y --> GV_TU_CHOI : tuChoi(yKien) [GV từ chối dứt điểm]
+  YEU_CAU_HIEU_CHINH --> GV_TU_CHOI : after(72h) [capYeuCau = GV]
+  CHO_BO_MON_DUYET --> BO_MON_TU_CHOI : boMonTuChoi(yKien) [TBM từ chối dứt điểm] / hoàn chỉ tiêu GV
+  YEU_CAU_HIEU_CHINH --> BO_MON_TU_CHOI : after(72h) [capYeuCau = BO_MON] / hoàn chỉ tiêu GV
+  GV_TU_CHOI --> [*]
+  BO_MON_TU_CHOI --> [*]
+
+  %% ===== Luồng hủy (FR-10) =====
+  CHO_GV_DONG_Y --> DA_HUY : rutDeTai() [Sinh viên rút đề tài]
+  YEU_CAU_HIEU_CHINH --> DA_HUY : rutDeTai() [Sinh viên rút đề tài]
+  CHO_BO_MON_DUYET --> DA_HUY : rutDeTai() [Sinh viên rút đề tài] / hoàn chỉ tiêu GV
+  DA_HUY --> [*]
+
+  note right of DUOC_BAO_VE
+    BR-05: khóa chỉnh sửa thông tin đề tài
+  end note
+  note left of YEU_CAU_HIEU_CHINH
+    Chỉ được hiệu chỉnh 1 lần (soLanChinhSua tối đa 1)
+    Quá 72h không nộp lại thì tự động bị từ chối
+  end note
