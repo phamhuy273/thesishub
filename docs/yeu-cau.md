@@ -49,10 +49,10 @@ Mỗi dòng đủ bốn phần: *[Chỉ số] phải [ngưỡng] khi [điều ki
 
 | # | Ràng buộc | Ai chịu trách nhiệm bảo vệ (lớp nào, điền ở Gói 4) |
 |---|---|---|
-| BR-01 | Một giảng viên không được nhận vượt quá hạn mức N sinh viên đang hướng dẫn cùng lúc | (điền ở Gói 4) |
-| BR-02 | Mỗi đề tài chỉ được có tối đa 2 thành viên sinh viên | (điền ở Gói 4) |
-| BR-03 | Đề tài chưa được giảng viên thẩm định không được chuyển lên bộ môn phê duyệt | (điền ở Gói 4) |
-| BR-04 | Sinh viên đã có đề tài đang xét duyệt hoặc đã được phê duyệt không được nộp thêm đề tài mới trong cùng học kỳ | (điền ở Gói 4) |
+| BR-01 | Một giảng viên không được nhận vượt quá hạn mức N sinh viên đang hướng dẫn cùng lúc | `GiangVienHuongDan` (phương thức `coTheNhanThem()`, `tangSoLuong()`) và `DeTaiService` |
+| BR-02 | Mỗi đề tài chỉ được có tối đa 2 thành viên sinh viên | `DeTaiTotNghiep` (phương thức `themSinhVien()`, ràng buộc danh sách) và `DeTaiService` |
+| BR-03 | Đề tài chưa được giảng viên thẩm định không được chuyển lên bộ môn phê duyệt | `DeTaiTotNghiep` (quản lý trạng thái `CHO_BO_MON_DUYET`) và `DeTaiService` (phương thức `boMonDuyet()`) |
+| BR-04 | Sinh viên đã có đề tài đang xét duyệt hoặc đã được phê duyệt không được nộp thêm đề tài mới trong cùng học kỳ | `SinhVien` (kế thừa `NguoiDung`) và `DeTaiService` (kiểm tra trùng lặp đề tài) |
 
 ## Mâu thuẫn trong yêu cầu và cách giải quyết
 
