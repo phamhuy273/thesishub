@@ -1,4 +1,5 @@
 import React from 'react';
+import { NHAN_TRANG_THAI_DUYET, layPhanCong } from '../utils/phanCong';
 
 export default function ApprovalModal({
   isOpen,
@@ -25,18 +26,36 @@ export default function ApprovalModal({
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginBottom: '1.25rem' }}>
           {isInstructor && selectedTopic.trangThai === 'CHO_GV_DONG_Y' && (
             <>
-              <button
-                onClick={() => onSubmit('gv-duyet')}
-                style={{ background: 'var(--primary)', color: '#fff', border: 'none', padding: '0.65rem 1rem', borderRadius: '8px', fontSize: '0.85rem', fontWeight: 600, cursor: 'pointer', textAlign: 'left' }}
-              >
-                ✓ Thẩm định đồng ý → Chuyển tiếp lên Bộ môn
-              </button>
-              <button
-                onClick={() => onSubmit('gv-tu-choi')}
-                style={{ background: '#fef2f2', color: '#b91c1c', border: '1px solid #fecaca', padding: '0.65rem 1rem', borderRadius: '8px', fontSize: '0.85rem', fontWeight: 600, cursor: 'pointer', textAlign: 'left' }}
-              >
-                ✕ Từ chối đề tài này
-              </button>
+              {layPhanCong(selectedTopic).map((pc) => {
+                const nhan = NHAN_TRANG_THAI_DUYET[pc.trangThaiDuyet];
+                return (
+                  <div key={pc.giangVien.maGiangVien} style={{ border: '1px solid var(--border)', borderRadius: '8px', padding: '0.65rem 0.75rem' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '0.5rem', fontSize: '0.85rem', fontWeight: 600 }}>
+                      <span>{pc.giangVien.hoTen} ({pc.giangVien.maGiangVien})</span>
+                      <span style={{ fontSize: '0.75rem', color: nhan.color, background: nhan.bg, border: `1px solid ${nhan.border}`, padding: '1px 8px', borderRadius: '999px', whiteSpace: 'nowrap' }}>{nhan.text}</span>
+                    </div>
+                    {pc.trangThaiDuyet === 'CHO_DUYET' && (
+                      <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem' }}>
+                        <button
+                          onClick={() => onSubmit('gv-duyet', pc.giangVien.maGiangVien)}
+                          style={{ flex: 1, background: 'var(--primary)', color: '#fff', border: 'none', padding: '0.5rem', borderRadius: '8px', fontSize: '0.8rem', fontWeight: 600, cursor: 'pointer' }}
+                        >
+                          ✓ Đồng ý
+                        </button>
+                        <button
+                          onClick={() => onSubmit('gv-tu-choi', pc.giangVien.maGiangVien)}
+                          style={{ flex: 1, background: '#fef2f2', color: '#b91c1c', border: '1px solid #fecaca', padding: '0.5rem', borderRadius: '8px', fontSize: '0.8rem', fontWeight: 600, cursor: 'pointer' }}
+                        >
+                          ✕ Từ chối
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+              <div style={{ fontSize: '0.75rem', color: '#64748b' }}>
+                Đề tài lên Bộ môn khi mọi giảng viên đã cho ý kiến và có ít nhất một người đồng ý.
+              </div>
             </>
           )}
 

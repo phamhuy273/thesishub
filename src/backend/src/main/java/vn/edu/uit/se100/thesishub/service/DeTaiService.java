@@ -29,17 +29,18 @@ public class DeTaiService {
         this.sinhVienRepository = sinhVienRepository;
     }
 
-    public DeTaiTotNghiep dangKyDeTai(String maDeTai, String tenDeTai, String moTa, String maGiangVien, String maSoSinhVien, boolean timDongDoi) {
+    public DeTaiTotNghiep dangKyDeTai(String maDeTai, String tenDeTai, String moTa, List<String> danhSachMaGiangVien, String maSoSinhVien, boolean timDongDoi) {
         if (deTaiRepository.findByMaDeTai(maDeTai).isPresent()) {
             throw new IllegalStateException("Mã đề tài đã tồn tại: " + maDeTai);
         }
 
-        GiangVienHuongDan gv = giangVienRepository.findByMaGiangVien(maGiangVien)
-                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy giảng viên: " + maGiangVien));
+        List<GiangVienHuongDan> danhSachGiangVien = danhSachMaGiangVien.stream()
+                .map(ma -> giangVienRepository.findByMaGiangVien(ma)
+                        .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy giảng viên: " + ma)))
+                .toList();
 
-        if (!gv.coTheNhanThem()) {
-            throw new IllegalStateException("Giảng viên " + gv.getHoTen() + " đã đạt tối đa hạn ngạch " + gv.getSoLuongSinhVienToiDa() + " sinh viên hướng dẫn (BR-01)");
-        }
+        DeTaiTotNghiep deTai = new DeTaiTotNghiep(maDeTai, tenDeTai, moTa, danhSachGiangVien);
+        danhSachGiangVien.forEach(this::kiemTraConHanMuc);
 
         SinhVien sv = sinhVienRepository.findByMaSoSinhVien(maSoSinhVien)
                 .orElseGet(() -> {
@@ -54,15 +55,14 @@ public class DeTaiService {
             throw new IllegalStateException("Sinh viên " + maSoSinhVien + " đã có đề tài trong học kỳ (Vi phạm bất biến BR-04)");
         }
 
-        gv.tangSoLuong(1);
-        DeTaiTotNghiep deTai = new DeTaiTotNghiep(maDeTai, tenDeTai, moTa, gv);
+        danhSachGiangVien.forEach(gv -> gv.tangSoLuong(1));
         deTai.themSinhVien(sv);
 
         if (timDongDoi) {
             deTai.batTimDongDoi();
         }
 
-        giangVienRepository.save(gv);
+        giangVienRepository.saveAll(danhSachGiangVien);
         return deTaiRepository.save(deTai);
     }
 
@@ -91,39 +91,28 @@ public class DeTaiService {
                     return sinhVienRepository.save(newSv);
                 });
 
-        GiangVienHuongDan gv = deTai.getGiangVienHuongDan();
-        if (!gv.coTheNhanThem()) {
-            throw new IllegalStateException("Giảng viên " + gv.getHoTen() + " đã đạt tối đa hạn ngạch " + gv.getSoLuongSinhVienToiDa() + " sinh viên hướng dẫn (BR-01)");
-        }
-        gv.tangSoLuong(1);
-        giangVienRepository.save(gv);
+        List<GiangVienHuongDan> giangVienConHieuLuc = deTai.layGiangVienConHieuLuc();
+        giangVienConHieuLuc.forEach(this::kiemTraConHanMuc);
+        giangVienConHieuLuc.forEach(gv -> gv.tangSoLuong(1));
+        giangVienRepository.saveAll(giangVienConHieuLuc);
 
         deTai.themSinhVien(sv);
         return deTaiRepository.save(deTai);
     }
 
-    public DeTaiTotNghiep giangVienDuyet(String maDeTai) {
+    public DeTaiTotNghiep giangVienDuyet(String maDeTai, String maGiangVien, String yKien) {
         DeTaiTotNghiep deTai = deTaiRepository.findByMaDeTai(maDeTai)
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy đề tài: " + maDeTai));
 
-        if (deTai.getTrangThai() != TrangThaiDeTai.CHO_GV_DONG_Y) {
-            throw new IllegalStateException("Trạng thái đề tài không hợp lệ để GV duyệt");
-        }
-
-        deTai.chuyenLenBoMon(null);
+        deTai.giangVienDongY(maGiangVien, yKien);
         return deTaiRepository.save(deTai);
     }
 
-    public DeTaiTotNghiep giangVienTuChoi(String maDeTai) {
+    public DeTaiTotNghiep giangVienTuChoi(String maDeTai, String maGiangVien, String yKien) {
         DeTaiTotNghiep deTai = deTaiRepository.findByMaDeTai(maDeTai)
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy đề tài: " + maDeTai));
 
-        if (deTai.getTrangThai() != TrangThaiDeTai.CHO_GV_DONG_Y) {
-            throw new IllegalStateException("Trạng thái đề tài không hợp lệ để GV từ chối");
-        }
-
-        deTai.tuChoi(null);
-        GiangVienHuongDan gv = deTai.getGiangVienHuongDan();
+        GiangVienHuongDan gv = deTai.giangVienTuChoi(maGiangVien, yKien);
         gv.giamSoLuong(deTai.getDanhSachSinhVien().size());
         giangVienRepository.save(gv);
 
@@ -151,9 +140,7 @@ public class DeTaiService {
         }
 
         deTai.boMonTuChoi(null);
-        GiangVienHuongDan gv = deTai.getGiangVienHuongDan();
-        gv.giamSoLuong(deTai.getDanhSachSinhVien().size());
-        giangVienRepository.save(gv);
+        hoanChiTieuConHieuLuc(deTai);
 
         return deTaiRepository.save(deTai);
     }
@@ -174,11 +161,30 @@ public class DeTaiService {
             }
         }
 
-        GiangVienHuongDan gv = deTai.getGiangVienHuongDan();
-        gv.giamSoLuong(deTai.getDanhSachSinhVien().size());
-        giangVienRepository.save(gv);
+        hoanChiTieuConHieuLuc(deTai);
 
         deTaiRepository.delete(deTai);
+    }
+
+    /** Dữ liệu trước TD-04 giữ nguyên hợp lệ: mỗi đề tài cũ thành đúng một phần phân công. Gọi lại nhiều lần vô hại. */
+    public int chuyenDoiDuLieuCu() {
+        List<DeTaiTotNghiep> daChuyenDoi = deTaiRepository.findAll().stream()
+                .filter(DeTaiTotNghiep::chuyenDoiDuLieuCu)
+                .toList();
+        deTaiRepository.saveAll(daChuyenDoi);
+        return daChuyenDoi.size();
+    }
+
+    private void kiemTraConHanMuc(GiangVienHuongDan gv) {
+        if (!gv.coTheNhanThem()) {
+            throw new IllegalStateException("Giảng viên " + gv.getHoTen() + " đã đạt tối đa hạn ngạch " + gv.getSoLuongSinhVienToiDa() + " sinh viên hướng dẫn (BR-01)");
+        }
+    }
+
+    private void hoanChiTieuConHieuLuc(DeTaiTotNghiep deTai) {
+        List<GiangVienHuongDan> giangVienConHieuLuc = deTai.layGiangVienConHieuLuc();
+        giangVienConHieuLuc.forEach(gv -> gv.giamSoLuong(deTai.getDanhSachSinhVien().size()));
+        giangVienRepository.saveAll(giangVienConHieuLuc);
     }
 
     @Transactional(readOnly = true)
@@ -204,6 +210,6 @@ public class DeTaiService {
 
     @Transactional(readOnly = true)
     public List<DeTaiTotNghiep> layDeTaiTheoGiangVien(Long giangVienId) {
-        return deTaiRepository.findByGiangVienHuongDanId(giangVienId);
+        return deTaiRepository.findByDanhSachPhanCong_GiangVien_Id(giangVienId);
     }
 }

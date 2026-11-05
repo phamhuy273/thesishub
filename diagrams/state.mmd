@@ -1,8 +1,9 @@
 stateDiagram-v2
   %% Phụ trách: N14-B
   %% Lớp: DeTaiTotNghiep
-  %% Truy vết: FR-01, FR-03, FR-04, FR-06, FR-07, FR-10 · BR-01, BR-03, BR-05
-  %% Nguồn: docs/dac-ta-UC-03.md, docs/phong-van.md:64-67, diagrams/seq-xet-duyet.mmd
+  %% Truy vết: FR-01, FR-03, FR-04, FR-06, FR-07, FR-10 · BR-01, BR-03, BR-05 · TD-04
+  %% Nguồn: docs/dac-ta-UC-03.md, docs/phong-van.md:64-67, diagrams/seq-xet-duyet.mmd, adr/0001-xu-ly-TD-04.md
+  %% Hai mức theo TD-04: mức đề tài (DeTaiTotNghiep) và mức từng phần (PhanCongHuongDan, lồng trong CHO_GV_DONG_Y)
 
   state "Chờ GV duyệt" as CHO_GV_DONG_Y
   state "Yêu cầu hiệu chỉnh (ân hạn 72h)" as YEU_CAU_HIEU_CHINH
@@ -13,9 +14,21 @@ stateDiagram-v2
   state "Bộ môn từ chối" as BO_MON_TU_CHOI
   state "Đã hủy" as DA_HUY
 
+  %% ===== Mức từng phần: mỗi đề tài có 1..5 PhanCongHuongDan chạy độc lập =====
+  state CHO_GV_DONG_Y {
+    state "Giảng viên chờ duyệt" as CHO_DUYET
+    state "Giảng viên đồng ý" as DONG_Y
+    state "Giảng viên từ chối" as TU_CHOI
+    [*] --> CHO_DUYET
+    CHO_DUYET --> DONG_Y : dongY(yKien)
+    CHO_DUYET --> TU_CHOI : tuChoi(yKien) / hoàn chỉ tiêu của riêng giảng viên này
+    DONG_Y --> [*]
+    TU_CHOI --> [*]
+  }
+
   %% ===== Luồng chính =====
   [*] --> CHO_GV_DONG_Y : Sinh viên nộp đề xuất (FR-01)
-  CHO_GV_DONG_Y --> CHO_BO_MON_DUYET : chuyenLenBoMon(yKien) [GV đồng ý và còn hạn mức, BR-01, BR-03]
+  CHO_GV_DONG_Y --> CHO_BO_MON_DUYET : [mọi phần đã có ý kiến và ít nhất 1 phần DONG_Y, BR-03, TD-04]
   CHO_BO_MON_DUYET --> DUOC_BAO_VE : boMonPheDuyet(yKien) [TBM phê duyệt]
   DUOC_BAO_VE --> DA_HOAN_THANH : hoanThanh() [Hội đồng nghiệm thu xong (FR-07)]
   DA_HOAN_THANH --> [*]
@@ -27,10 +40,10 @@ stateDiagram-v2
   YEU_CAU_HIEU_CHINH --> CHO_BO_MON_DUYET : nopBanHieuChinh() [trong 72h và capYeuCau = BO_MON] / soLanChinhSua++
 
   %% ===== Luồng từ chối =====
-  CHO_GV_DONG_Y --> GV_TU_CHOI : tuChoi(yKien) [GV từ chối dứt điểm]
-  YEU_CAU_HIEU_CHINH --> GV_TU_CHOI : after(72h) [capYeuCau = GV]
-  CHO_BO_MON_DUYET --> BO_MON_TU_CHOI : boMonTuChoi(yKien) [TBM từ chối dứt điểm] / hoàn chỉ tiêu GV
-  YEU_CAU_HIEU_CHINH --> BO_MON_TU_CHOI : after(72h) [capYeuCau = BO_MON] / hoàn chỉ tiêu GV
+  CHO_GV_DONG_Y --> GV_TU_CHOI : [mọi phần đều TU_CHOI, TD-04]
+  YEU_CAU_HIEU_CHINH --> GV_TU_CHOI : sau(72h) [capYeuCau = GV]
+  CHO_BO_MON_DUYET --> BO_MON_TU_CHOI : boMonTuChoi(yKien) [TBM từ chối dứt điểm] / hoàn chỉ tiêu các GV chưa từ chối
+  YEU_CAU_HIEU_CHINH --> BO_MON_TU_CHOI : sau(72h) [capYeuCau = BO_MON] / hoàn chỉ tiêu GV
   GV_TU_CHOI --> [*]
   BO_MON_TU_CHOI --> [*]
 
@@ -40,6 +53,11 @@ stateDiagram-v2
   CHO_BO_MON_DUYET --> DA_HUY : rutDeTai() [Sinh viên rút đề tài] / hoàn chỉ tiêu GV
   DA_HUY --> [*]
 
+  note right of CHO_GV_DONG_Y
+    TD-04: từ 1 đến 5 phần, mỗi phần có vòng đời riêng.
+    Từ chối một phần không hủy phần khác.
+    Đề tài cũ (một giảng viên) tương đương một phần.
+  end note
   note right of DUOC_BAO_VE
     BR-05: khóa chỉnh sửa thông tin đề tài
   end note

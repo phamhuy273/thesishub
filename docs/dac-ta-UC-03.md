@@ -69,3 +69,13 @@
   - *Bảo vệ tại:* Bước 4 (chỉ đổi trạng thái sang `CHO_BO_MON_DUYET` khi GVHD đồng ý thẩm định) và Bước 5, 6 (hệ thống chỉ hiển thị ở danh sách của Trưởng bộ môn các đề tài đã qua GVHD thẩm định đạt). Khi GVHD từ chối dứt điểm ở luồng lỗi **3e** hoặc quá hạn ân hạn ở luồng **3a.e**, đề tài bị chặn tuyệt đối không được chuyển lên cấp Bộ môn.
 - **BR-05**: Khóa chỉnh sửa thông tin đề tài sau khi được Bộ môn phê duyệt chính thức.
   - *Bảo vệ tại:* Bước 8 (chuyển sang trạng thái `DUOC_BAO_VE` và chặn mọi quyền chỉnh sửa thuộc tính đề tài).
+
+## Cập nhật theo phiếu TD-04 (đồng hướng dẫn)
+
+Nguồn: `phieu-thay-doi/dot1_N14_TD-04.md`, `adr/0001-xu-ly-TD-04.md`. Phần này có hiệu lực thay các bước tương ứng ở trên.
+
+- Mỗi đề tài có từ 1 đến 5 giảng viên, mỗi người là một `PhanCongHuongDan` với trạng thái riêng `TrangThaiPheDuyetGV` (`CHO_DUYET`, `DONG_Y`, `TU_CHOI`). Bước 1–4 và nhánh 3e lặp cho từng giảng viên; một giảng viên từ chối không hủy phần của người khác.
+- Đề tài chỉ rời `CHO_GV_DONG_Y` khi mọi giảng viên đã cho ý kiến: có ít nhất một `DONG_Y` thì sang `CHO_BO_MON_DUYET`; tất cả `TU_CHOI` thì sang `GV_TU_CHOI`.
+- Chỉ tiêu BR-01 tính riêng cho từng giảng viên ngay khi nộp đề xuất hoặc ứng tuyển ghép đội (kiểm và tăng tại UC-01, UC-02), không tăng thêm ở bước 4 và bước 8; vì vậy luồng lỗi 4e không còn xảy ra ở bước thẩm định.
+- Giảng viên từ chối được hoàn chỉ tiêu của mình ngay. Bộ môn từ chối hoặc sinh viên hủy đề xuất thì hoàn cho các giảng viên chưa từ chối.
+- Đề tài cũ (một giảng viên) được chuyển thành đúng một phần, giữ nguyên trạng thái đề tài và chỉ tiêu.

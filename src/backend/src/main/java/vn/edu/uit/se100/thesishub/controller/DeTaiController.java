@@ -37,7 +37,7 @@ public class DeTaiController {
                 req.getMaDeTai(),
                 req.getTenDeTai(),
                 req.getMoTa(),
-                req.getMaGiangVien(),
+                req.layDanhSachMaGiangVien(),
                 req.getMaSoSinhVien(),
                 req.isTimDongDoi()
         );
@@ -70,13 +70,19 @@ public class DeTaiController {
     }
 
     @PutMapping("/{maDeTai}/gv-duyet")
-    public ResponseEntity<DeTaiTotNghiep> giangVienDuyet(@PathVariable String maDeTai) {
-        return ResponseEntity.ok(deTaiService.giangVienDuyet(maDeTai));
+    public ResponseEntity<DeTaiTotNghiep> giangVienDuyet(
+            @PathVariable String maDeTai,
+            @RequestParam(required = false) String maGiangVien,
+            @RequestParam(required = false) String yKien) {
+        return ResponseEntity.ok(deTaiService.giangVienDuyet(maDeTai, maGiangVien, yKien));
     }
 
     @PutMapping("/{maDeTai}/gv-tu-choi")
-    public ResponseEntity<DeTaiTotNghiep> giangVienTuChoi(@PathVariable String maDeTai) {
-        return ResponseEntity.ok(deTaiService.giangVienTuChoi(maDeTai));
+    public ResponseEntity<DeTaiTotNghiep> giangVienTuChoi(
+            @PathVariable String maDeTai,
+            @RequestParam(required = false) String maGiangVien,
+            @RequestParam(required = false) String yKien) {
+        return ResponseEntity.ok(deTaiService.giangVienTuChoi(maDeTai, maGiangVien, yKien));
     }
 
     @PutMapping("/{maDeTai}/bo-mon-duyet")

@@ -1,3 +1,5 @@
+import { SO_GIANG_VIEN_TOI_DA, layPhanCong, tinhTrangThaiSauThamDinh } from '../utils/phanCong';
+
 const API_BASE = import.meta.env.DEV
   ? (import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api')
   : ((import.meta.env.VITE_API_BASE_URL && !import.meta.env.VITE_API_BASE_URL.includes('localhost'))
@@ -6,7 +8,11 @@ const API_BASE = import.meta.env.DEV
 
 const DEFAULT_GV = [
   { id: 1, maGiangVien: 'GV01', hoTen: 'TS. Nguyễn Văn A', email: 'nva@uit.edu.vn', soLuongSinhVienToiDa: 10, soLuongHienTai: 2 },
-  { id: 2, maGiangVien: 'GV02', hoTen: 'PGS.TS. Trần Thị B', email: 'ttb@uit.edu.vn', soLuongSinhVienToiDa: 10, soLuongHienTai: 1 }
+  { id: 2, maGiangVien: 'GV02', hoTen: 'PGS.TS. Trần Thị B', email: 'ttb@uit.edu.vn', soLuongSinhVienToiDa: 10, soLuongHienTai: 1 },
+  { id: 3, maGiangVien: 'GV03', hoTen: 'TS. Lý Văn K', email: 'lvk@uit.edu.vn', soLuongSinhVienToiDa: 10, soLuongHienTai: 0 },
+  { id: 4, maGiangVien: 'GV04', hoTen: 'TS. Mai Thị L', email: 'mtl@uit.edu.vn', soLuongSinhVienToiDa: 10, soLuongHienTai: 0 },
+  { id: 5, maGiangVien: 'GV05', hoTen: 'ThS. Đặng Văn M', email: 'dvm@uit.edu.vn', soLuongSinhVienToiDa: 10, soLuongHienTai: 0 },
+  { id: 6, maGiangVien: 'GV06', hoTen: 'ThS. Bùi Thị N', email: 'btn@uit.edu.vn', soLuongSinhVienToiDa: 10, soLuongHienTai: 0 }
 ];
 
 const DEFAULT_SV = [
@@ -165,7 +171,14 @@ export async function createDeTai(payload) {
     throw new Error(`Sinh viên ${payload.maSoSinhVien} đã có đề tài trong học kỳ (Vi phạm bất biến BR-04)`);
   }
 
-  const gv = DEFAULT_GV.find(g => g.maGiangVien === payload.maGiangVien) || DEFAULT_GV[0];
+  const danhSachMa = payload.danhSachMaGiangVien || [];
+  if (danhSachMa.length < 1 || danhSachMa.length > SO_GIANG_VIEN_TOI_DA) {
+    throw new Error(`Mỗi đề tài có từ 1 đến ${SO_GIANG_VIEN_TOI_DA} giảng viên hướng dẫn (TD-04)`);
+  }
+  const danhSachPhanCong = danhSachMa.map(ma => ({
+    giangVien: DEFAULT_GV.find(g => g.maGiangVien === ma) || DEFAULT_GV[0],
+    trangThaiDuyet: 'CHO_DUYET'
+  }));
   const sv = DEFAULT_SV.find(s => s.maSoSinhVien === payload.maSoSinhVien) || {
     maSoSinhVien: payload.maSoSinhVien,
     hoTen: 'Sinh viên ' + payload.maSoSinhVien,
@@ -179,7 +192,8 @@ export async function createDeTai(payload) {
     moTa: payload.moTa,
     trangThai: 'CHO_GV_DONG_Y',
     dangTimDongDoi: Boolean(payload.timDongDoi),
-    giangVienHuongDan: gv,
+    danhSachPhanCong,
+    giangVienHuongDan: danhSachPhanCong[0].giangVien,
     danhSachSinhVien: [sv]
   };
 
@@ -285,9 +299,10 @@ export async function deleteDeTai(maDeTai, maSoSinhVien = 'SV01') {
   return { success: true, message: 'Đã hủy đề xuất đề tài thành công' };
 }
 
-export async function updateTrangThai(maDeTai, actionEndpoint) {
+export async function updateTrangThai(maDeTai, actionEndpoint, maGiangVien) {
+  const query = maGiangVien ? `?maGiangVien=${encodeURIComponent(maGiangVien)}` : '';
   try {
-    const res = await fetch(`${API_BASE}/de-tai/${maDeTai}/${actionEndpoint}`, {
+    const res = await fetch(`${API_BASE}/de-tai/${maDeTai}/${actionEndpoint}${query}`, {
       method: 'PUT',
       signal: AbortSignal.timeout(6000)
     });
@@ -315,10 +330,13 @@ export async function updateTrangThai(maDeTai, actionEndpoint) {
   const target = list.find(d => d.maDeTai === maDeTai);
   if (!target) throw new Error('Không tìm thấy đề tài');
 
-  if (actionEndpoint === 'gv-duyet') {
-    target.trangThai = 'CHO_BO_MON_DUYET';
-  } else if (actionEndpoint === 'gv-tu-choi') {
-    target.trangThai = 'GV_TU_CHOI';
+  if (actionEndpoint === 'gv-duyet' || actionEndpoint === 'gv-tu-choi') {
+    const phanCong = layPhanCong(target);
+    const phan = maGiangVien ? phanCong.find(pc => pc.giangVien.maGiangVien === maGiangVien) : phanCong[0];
+    if (!phan) throw new Error(`Giảng viên ${maGiangVien} không hướng dẫn đề tài ${maDeTai}`);
+    phan.trangThaiDuyet = actionEndpoint === 'gv-duyet' ? 'DONG_Y' : 'TU_CHOI';
+    target.danhSachPhanCong = phanCong;
+    target.trangThai = tinhTrangThaiSauThamDinh(phanCong);
   } else if (actionEndpoint === 'bo-mon-duyet') {
     target.trangThai = 'DUOC_BAO_VE';
   } else if (actionEndpoint === 'bo-mon-tu-choi') {

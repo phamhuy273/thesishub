@@ -2,6 +2,7 @@ package vn.edu.uit.se100.thesishub.config;
 
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
+import java.util.List;
 import vn.edu.uit.se100.thesishub.domain.GiangVienHuongDan;
 import vn.edu.uit.se100.thesishub.domain.SinhVien;
 import vn.edu.uit.se100.thesishub.repository.DeTaiTotNghiepRepository;
@@ -31,12 +32,15 @@ public class DataInitializer implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        if (giangVienRepository.count() == 0) {
-            GiangVienHuongDan gv1 = new GiangVienHuongDan("ND_GV01", "TS. Nguyễn Văn A", "nva@uit.edu.vn", "0901234567", "GV01", 10);
-            GiangVienHuongDan gv2 = new GiangVienHuongDan("ND_GV02", "PGS.TS. Trần Thị B", "ttb@uit.edu.vn", "0902345678", "GV02", 10);
-            giangVienRepository.save(gv1);
-            giangVienRepository.save(gv2);
-        }
+        deTaiService.chuyenDoiDuLieuCu();
+
+        // Thêm theo từng mã để CSDL đã có GV01, GV02 vẫn nhận đủ giảng viên chạy thử đồng hướng dẫn.
+        themGiangVienNeuChuaCo("ND_GV01", "TS. Nguyễn Văn A", "nva@uit.edu.vn", "0901234567", "GV01");
+        themGiangVienNeuChuaCo("ND_GV02", "PGS.TS. Trần Thị B", "ttb@uit.edu.vn", "0902345678", "GV02");
+        themGiangVienNeuChuaCo("ND_GV03", "TS. Lý Văn K", "lvk@uit.edu.vn", "0903456789", "GV03");
+        themGiangVienNeuChuaCo("ND_GV04", "TS. Mai Thị L", "mtl@uit.edu.vn", "0904567890", "GV04");
+        themGiangVienNeuChuaCo("ND_GV05", "ThS. Đặng Văn M", "dvm@uit.edu.vn", "0905678901", "GV05");
+        themGiangVienNeuChuaCo("ND_GV06", "ThS. Bùi Thị N", "btn@uit.edu.vn", "0906789012", "GV06");
 
         if (sinhVienRepository.count() == 0) {
             sinhVienRepository.save(new SinhVien("ND_SV01", "Nguyễn Văn C", "sv.c@uit.edu.vn", "0911223344", "SV01", "KTPM2023"));
@@ -52,10 +56,16 @@ public class DataInitializer implements CommandLineRunner {
                     "DT01",
                     "Xây dựng hệ thống quản lý và xét duyệt đề tài tốt nghiệp ThesisHub",
                     "Hệ thống hỗ trợ sinh viên và giảng viên quản lý quy trình đồ án tốt nghiệp bậc đại học.",
-                    "GV01",
+                    List.of("GV01"),
                     "SV01",
                     true
             );
+        }
+    }
+
+    private void themGiangVienNeuChuaCo(String maNguoiDung, String hoTen, String email, String soDienThoai, String maGiangVien) {
+        if (giangVienRepository.findByMaGiangVien(maGiangVien).isEmpty()) {
+            giangVienRepository.save(new GiangVienHuongDan(maNguoiDung, hoTen, email, soDienThoai, maGiangVien, 10));
         }
     }
 }

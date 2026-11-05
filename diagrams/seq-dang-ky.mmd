@@ -18,8 +18,17 @@ sequenceDiagram
 
   %% --- UC-01: Nộp đề xuất đề tài ---
   Note over SV,DeTaiController: UC-01: Đăng ký đề tài tốt nghiệp & ghép đội
-  SV->>DeTaiController: dangKyDeTai(deTaiRequest, danhSachSinhVien, gvhd)
-  DeTaiController->>DeTaiService: dangKyDeTai(tieuDe, moTa, linhVuc, danhSachSinhVien, gvhd)
+  SV->>DeTaiController: dangKyDeTai(deTaiRequest)
+  DeTaiController->>DeTaiService: dangKyDeTai(maDeTai, tenDeTai, moTa, danhSachMaGiangVien, mssv, timDongDoi)
+
+  DeTaiService->>DeTaiTotNghiep: new DeTaiTotNghiep(maDeTai, tenDeTai, moTa, danhSachGiangVien)
+  alt Không có giảng viên hoặc có từ 6 giảng viên trở lên (Vi phạm TD-04)
+    DeTaiTotNghiep-->>DeTaiService: Lỗi TD-04, tối đa 5 giảng viên hướng dẫn
+    DeTaiService-->>DeTaiController: lỗi TD-04
+    DeTaiController-->>SV: 400 Bad Request ("Mỗi đề tài có từ 1 đến 5 giảng viên hướng dẫn")
+  else Từ 1 đến 5 giảng viên
+    DeTaiTotNghiep-->>DeTaiService: Đề tài mới, mỗi giảng viên một PhanCongHuongDan CHO_DUYET
+  end
 
   alt Số lượng thành viên > 2 (Vi phạm BR-02)
     DeTaiService-->>DeTaiController: throw IllegalArgumentException("BR-02: Tối đa 2 sinh viên")
@@ -30,6 +39,7 @@ sequenceDiagram
       DeTaiController-->>SV: 400 Bad Request ("Sinh viên đã đăng ký đề tài trong học kỳ")
     end
 
+    loop Mỗi giảng viên đã chọn (BR-01 áp riêng từng người)
     DeTaiService->>GiangVienHuongDan: coTheNhanThem()
     alt GVHD đã vượt trần hạn mức N sinh viên (Vi phạm BR-01)
       GiangVienHuongDan-->>DeTaiService: false
@@ -37,8 +47,9 @@ sequenceDiagram
       DeTaiController-->>SV: 400 Bad Request ("Giảng viên hướng dẫn đã đạt hạn mức sinh viên")
     else GVHD còn chỉ tiêu hướng dẫn
       GiangVienHuongDan-->>DeTaiService: true
-      DeTaiService->>DeTaiTotNghiep: new DeTaiTotNghiep(tieuDe, moTa, linhVuc, gvhd)
-      DeTaiTotNghiep-->>DeTaiService: deTai
+      DeTaiService->>GiangVienHuongDan: tangSoLuong(1)
+    end
+    end
 
       DeTaiService->>DeTaiTotNghiep: themSinhVien(sinhVien1)
       DeTaiTotNghiep-->>DeTaiService: true
@@ -52,6 +63,5 @@ sequenceDiagram
       DeTaiTotNghiep-->>DeTaiService: true
 
       DeTaiService-->>DeTaiController: deTai
-      DeTaiController-->>SV: 201 Created (Đăng ký đề tài thành công, chờ GVHD thẩm định)
-    end
+      DeTaiController-->>SV: 201 Created (Đăng ký đề tài thành công, chờ các GVHD thẩm định)
   end
