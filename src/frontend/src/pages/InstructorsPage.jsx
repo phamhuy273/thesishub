@@ -1,9 +1,10 @@
 import React from 'react';
+import { demSinhVienDangHuongDan, giuChiTieuCuaGiangVien } from '../utils/phanCong';
 
 export default function InstructorsPage({ giangVienList, deTaiList }) {
   const gvStats = giangVienList.map((gv) => {
-    const matchedTopics = deTaiList.filter((d) => d.giangVienHuongDan?.maGiangVien === gv.maGiangVien);
-    const currentCount = matchedTopics.reduce((acc, curr) => acc + (curr.danhSachSinhVien || []).length, 0);
+    const matchedTopics = deTaiList.filter((d) => giuChiTieuCuaGiangVien(d, gv.maGiangVien));
+    const currentCount = demSinhVienDangHuongDan(deTaiList, gv.maGiangVien);
     const maxCount = gv.soLuongSinhVienToiDa || 10;
     const isFull = currentCount >= maxCount;
     const ratio = Math.min(100, Math.round((currentCount / maxCount) * 100));

@@ -14,5 +14,5 @@ public interface DeTaiTotNghiepRepository extends JpaRepository<DeTaiTotNghiep, 
 
     List<DeTaiTotNghiep> findByDangTimDongDoiTrue();
 
-    List<DeTaiTotNghiep> findByGiangVienHuongDanId(Long giangVienId);
+    List<DeTaiTotNghiep> findByDanhSachPhanCong_GiangVien_Id(Long giangVienId);
 }

@@ -36,6 +36,25 @@ classDiagram
     +getSoLuongSinhVienToiDa() int
   }
 
+  class TrangThaiPheDuyetGV {
+    <<enumeration>>
+    CHO_DUYET
+    DONG_Y
+    TU_CHOI
+  }
+
+  class PhanCongHuongDan {
+    -Long id
+    -GiangVienHuongDan giangVien
+    -TrangThaiPheDuyetGV trangThaiDuyet
+    -String nhanXet
+    -LocalDateTime thoiDiemPhanHoi
+    +dongY(String yKien) void
+    +tuChoi(String yKien) void
+    +getGiangVien() GiangVienHuongDan
+    +getTrangThaiDuyet() TrangThaiPheDuyetGV
+  }
+
   class DeTaiTotNghiep {
     -Long id
     -String maDeTai
@@ -44,14 +63,18 @@ classDiagram
     -String trangThai
     -boolean dangTimDongDoi
     -List~SinhVien~ danhSachSinhVien
-    -GiangVienHuongDan giangVienHuongDan
+    -List~PhanCongHuongDan~ danhSachPhanCong
+    +themGiangVien(GiangVienHuongDan gv) void
+    +giangVienDongY(String maGiangVien, String yKien) void
+    +giangVienTuChoi(String maGiangVien, String yKien) GiangVienHuongDan
+    +layGiangVienConHieuLuc() List
+    +chuyenDoiDuLieuCu() boolean
     +themSinhVien(SinhVien sv) void
     +setTrangThai(String trangThai) void
     +getTrangThai() String
     +getSoLuongSinhVien() int
-    +tuChoi(String yKien) void
+    -capNhatKetQuaThamDinhCap1(String yKien) void
     +yeuCauHieuChinh(String yKien, int thoiGian) void
-    +chuyenLenBoMon(String yKien) void
     +boMonPheDuyet(String yKien) void
     +boMonTuChoi(String yKien) void
     +batTimDongDoi() void
@@ -64,11 +87,12 @@ classDiagram
     -GiangVienHuongDanRepository giangVienRepository
     -SinhVienRepository sinhVienRepository
     +timKiemDongDoi(String kyNang, String linhVuc) List
-    +dangKyDeTai(String tieuDe, String moTa, String linhVuc, List sv, GiangVienHuongDan gv) DeTaiTotNghiep
+    +dangKyDeTai(String maDeTai, String tenDeTai, String moTa, List danhSachMaGiangVien, String mssv, boolean timDongDoi) DeTaiTotNghiep
     +ungTuyenGhepDoi(String maDeTai, String mssv) DeTaiTotNghiep
-    +giangVienDuyet(DeTaiTotNghiep deTai, String quyetDinh, String yKien) DeTaiTotNghiep
-    +giangVienTuChoi(String maDeTai) DeTaiTotNghiep
-    +boMonDuyet(DeTaiTotNghiep deTai, String quyetDinh, String yKien) DeTaiTotNghiep
+    +giangVienDuyet(String maDeTai, String maGiangVien, String yKien) DeTaiTotNghiep
+    +giangVienTuChoi(String maDeTai, String maGiangVien, String yKien) DeTaiTotNghiep
+    +chuyenDoiDuLieuCu() int
+    +boMonDuyet(String maDeTai) DeTaiTotNghiep
     +boMonTuChoi(String maDeTai) DeTaiTotNghiep
     +huyDeTai(String maDeTai, String mssv) void
   }
@@ -76,9 +100,11 @@ classDiagram
   class DeTaiController {
     -DeTaiService deTaiService
     +timKiemDongDoi(String kyNang, String linhVuc) ResponseEntity
-    +dangKyDeTai(DangKyDeTaiRequest req, List sv, GiangVienHuongDan gv) ResponseEntity
-    +giangVienDuyet(DeTaiTotNghiep deTai, String quyetDinh, String yKien) ResponseEntity
-    +boMonDuyet(DeTaiTotNghiep deTai, String quyetDinh, String yKien) ResponseEntity
+    +dangKyDeTai(DangKyDeTaiRequest req) ResponseEntity
+    +giangVienDuyet(String maDeTai, String maGiangVien, String yKien) ResponseEntity
+    +giangVienTuChoi(String maDeTai, String maGiangVien, String yKien) ResponseEntity
+    +boMonDuyet(String maDeTai) ResponseEntity
+    +boMonTuChoi(String maDeTai) ResponseEntity
     +layTatCaDeTai() ResponseEntity
     +layChiTietDeTai(String maDeTai) ResponseEntity
     +ungTuyenGhepDoi(String maDeTai, UngTuyenRequest req) ResponseEntity
@@ -87,7 +113,9 @@ classDiagram
 
   NguoiDung <|-- SinhVien : keThua
   NguoiDung <|-- GiangVienHuongDan : keThua
-  DeTaiTotNghiep "0..*" --> "1" GiangVienHuongDan : giangVienHuongDan
+  DeTaiTotNghiep "1" *-- "1..5" PhanCongHuongDan : danhSachPhanCong
+  PhanCongHuongDan "0..*" --> "1" GiangVienHuongDan : giangVien
+  PhanCongHuongDan --> TrangThaiPheDuyetGV : trangThaiDuyet
   DeTaiTotNghiep "1" *-- "1..2" SinhVien : danhSachSinhVien
   DeTaiService ..> DeTaiTotNghiep : quanLyNghiepVu
   DeTaiService ..> GiangVienHuongDan : kiemTraHanMuc

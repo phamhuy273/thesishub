@@ -1,5 +1,6 @@
 import React from 'react';
 import { STATUS_CONFIG } from '../constants/status';
+import { NHAN_TRANG_THAI_DUYET, layPhanCong } from '../utils/phanCong';
 
 export default function TopicProgressModal({ isOpen, onClose, topic }) {
   if (!isOpen || !topic) return null;
@@ -54,7 +55,8 @@ export default function TopicProgressModal({ isOpen, onClose, topic }) {
 
         <div style={{ background: '#f8fafc', padding: '12px 14px', borderRadius: '8px', border: '1px solid #f1f5f9', marginBottom: '1.5rem', fontSize: '13px' }}>
           <div style={{ marginBottom: '6px', color: '#475569' }}>
-            <span style={{ fontWeight: 600, color: '#334155' }}>Cán bộ hướng dẫn:</span> {topic.giangVienHuongDan?.hoTen} ({topic.giangVienHuongDan?.maGiangVien})
+            <span style={{ fontWeight: 600, color: '#334155' }}>Cán bộ hướng dẫn:</span>{' '}
+            {layPhanCong(topic).map((pc) => `${pc.giangVien.hoTen} (${pc.giangVien.maGiangVien}): ${NHAN_TRANG_THAI_DUYET[pc.trangThaiDuyet].text}`).join(', ')}
           </div>
           <div style={{ color: '#475569' }}>
             <span style={{ fontWeight: 600, color: '#334155' }}>Thành viên ({memberCount}/2):</span>{' '}
@@ -83,9 +85,9 @@ export default function TopicProgressModal({ isOpen, onClose, topic }) {
               2. GVHD Thẩm định chuyên môn (UC-04)
             </div>
             <div style={{ fontSize: '12px', marginTop: '2px', color: isStep2Done ? '#15803d' : isStep2Pending ? '#b45309' : isStep2Rejected ? '#b91c1c' : 'var(--text-muted)' }}>
-              {isStep2Done && '✓ Giảng viên hướng dẫn đã thẩm định đồng ý và chuyển tiếp lên Bộ môn.'}
-              {isStep2Pending && '⏳ Đang chờ Giảng viên hướng dẫn thẩm định chuyên môn và hạn mức.'}
-              {isStep2Rejected && '✕ Giảng viên hướng dẫn đã từ chối tiếp nhận đề tài.'}
+              {isStep2Done && '✓ Mọi giảng viên đã cho ý kiến, có ít nhất một người đồng ý; đã chuyển tiếp lên Bộ môn.'}
+              {isStep2Pending && '⏳ Đang chờ các giảng viên hướng dẫn cho ý kiến thẩm định.'}
+              {isStep2Rejected && '✕ Mọi giảng viên hướng dẫn đều đã từ chối tiếp nhận đề tài.'}
             </div>
           </div>
 

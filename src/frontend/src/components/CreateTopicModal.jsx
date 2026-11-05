@@ -1,4 +1,5 @@
 import React from 'react';
+import { SO_GIANG_VIEN_TOI_DA, demSinhVienDangHuongDan } from '../utils/phanCong';
 
 export default function CreateTopicModal({
   isOpen,
@@ -17,10 +18,16 @@ export default function CreateTopicModal({
     (d.danhSachSinhVien || []).some(s => s.maSoSinhVien === form.maSoSinhVien?.trim())
   );
 
-  const selectedGVCount = (deTaiList || [])
-    .filter(d => d.trangThai !== 'GV_TU_CHOI' && d.trangThai !== 'BO_MON_TU_CHOI' && d.giangVienHuongDan?.maGiangVien === form.maGiangVien)
-    .reduce((sum, d) => sum + (d.danhSachSinhVien || []).length, 0);
-  const isSelectedGVFull = selectedGVCount >= 10;
+  const selectedGV = form.danhSachMaGiangVien || [];
+  const isDuGiangVien = selectedGV.length >= SO_GIANG_VIEN_TOI_DA;
+  const isSelectedGVFull = selectedGV.some(ma => demSinhVienDangHuongDan(deTaiList, ma) >= 10);
+  const isThieuGiangVien = selectedGV.length === 0;
+
+  const toggleGiangVien = (ma) => {
+    const daChon = selectedGV.includes(ma);
+    if (!daChon && isDuGiangVien) return;
+    setForm({ ...form, danhSachMaGiangVien: daChon ? selectedGV.filter(m => m !== ma) : [...selectedGV, ma] });
+  };
 
   const isDuplicateMaDeTai = (deTaiList || []).some(d => d.maDeTai?.toLowerCase() === form.maDeTai?.trim().toLowerCase());
 
@@ -66,24 +73,33 @@ export default function CreateTopicModal({
           </div>
 
           <div style={{ marginBottom: '1rem' }}>
-            <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, marginBottom: '0.25rem' }}>Giảng viên hướng dẫn</label>
-            <select
-              value={form.maGiangVien}
-              onChange={(e) => setForm({ ...form, maGiangVien: e.target.value })}
-              style={{ width: '100%', padding: '0.5rem', borderRadius: '4px', border: '1px solid #cbd5e1', fontSize: '0.85rem', boxSizing: 'border-box' }}
-            >
+            <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, marginBottom: '0.25rem' }}>
+              Giảng viên hướng dẫn ({selectedGV.length}/{SO_GIANG_VIEN_TOI_DA})
+            </label>
+            <div style={{ border: '1px solid #cbd5e1', borderRadius: '4px', padding: '0.5rem', maxHeight: '140px', overflowY: 'auto' }}>
               {giangVienList.map((gv) => {
-                const count = (deTaiList || [])
-                  .filter(d => d.trangThai !== 'GV_TU_CHOI' && d.trangThai !== 'BO_MON_TU_CHOI' && d.giangVienHuongDan?.maGiangVien === gv.maGiangVien)
-                  .reduce((sum, d) => sum + (d.danhSachSinhVien || []).length, 0);
+                const count = demSinhVienDangHuongDan(deTaiList, gv.maGiangVien);
                 const isFull = count >= (gv.soLuongSinhVienToiDa || 10);
+                const daChon = selectedGV.includes(gv.maGiangVien);
+                const khongChonDuoc = !daChon && (isFull || isDuGiangVien);
                 return (
-                  <option key={gv.maGiangVien} value={gv.maGiangVien} disabled={isFull}>
-                    {gv.hoTen} ({gv.maGiangVien}) — {isFull ? 'Đã đủ hạn ngạch 10/10 (BR-02)' : `Còn ${10 - count} chỗ`}
-                  </option>
+                  <label key={gv.maGiangVien} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.85rem', padding: '2px 0', cursor: khongChonDuoc ? 'not-allowed' : 'pointer', color: khongChonDuoc ? '#94a3b8' : 'inherit' }}>
+                    <input
+                      type="checkbox"
+                      checked={daChon}
+                      disabled={khongChonDuoc}
+                      onChange={() => toggleGiangVien(gv.maGiangVien)}
+                    />
+                    <span>{gv.hoTen} ({gv.maGiangVien}) — {isFull ? 'Đã đủ hạn ngạch 10/10 (BR-01)' : `Còn ${10 - count} chỗ`}</span>
+                  </label>
                 );
               })}
-            </select>
+            </div>
+            {isDuGiangVien && (
+              <div style={{ fontSize: '0.75rem', color: '#b45309', marginTop: '0.25rem' }}>
+                Đã chọn đủ {SO_GIANG_VIEN_TOI_DA} giảng viên, không thể thêm người thứ {SO_GIANG_VIEN_TOI_DA + 1}.
+              </div>
+            )}
           </div>
 
           <div style={{ marginBottom: '1rem' }}>
@@ -116,7 +132,7 @@ export default function CreateTopicModal({
 
           {isSelectedGVFull && (
             <div style={{ color: '#b91c1c', background: '#fef2f2', border: '1px solid #fecaca', borderRadius: '8px', padding: '10px 14px', fontSize: '13px', marginBottom: '1.25rem', lineHeight: 1.4 }}>
-              ⚠️ <strong>Cảnh báo quy chế BR-02:</strong> Giảng viên đã đạt giới hạn tối đa 10 sinh viên hướng dẫn. Vui lòng chọn giảng viên khác.
+              ⚠️ <strong>Cảnh báo quy chế BR-01:</strong> Có giảng viên đã đạt giới hạn tối đa 10 sinh viên hướng dẫn. Vui lòng bỏ chọn giảng viên đó.
             </div>
           )}
 
@@ -137,10 +153,10 @@ export default function CreateTopicModal({
             <button
               type="submit"
               className="btn-primary"
-              disabled={Boolean(existingTopicOfStudent || isSelectedGVFull || isDuplicateMaDeTai)}
+              disabled={Boolean(existingTopicOfStudent || isSelectedGVFull || isDuplicateMaDeTai || isThieuGiangVien)}
               style={{
-                opacity: (existingTopicOfStudent || isSelectedGVFull || isDuplicateMaDeTai) ? 0.5 : 1,
-                cursor: (existingTopicOfStudent || isSelectedGVFull || isDuplicateMaDeTai) ? 'not-allowed' : 'pointer'
+                opacity: (existingTopicOfStudent || isSelectedGVFull || isDuplicateMaDeTai || isThieuGiangVien) ? 0.5 : 1,
+                cursor: (existingTopicOfStudent || isSelectedGVFull || isDuplicateMaDeTai || isThieuGiangVien) ? 'not-allowed' : 'pointer'
               }}
             >
               Gửi đề xuất

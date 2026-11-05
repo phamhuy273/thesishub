@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { layPhanCong } from '../utils/phanCong';
 import TopicCard from '../components/TopicCard';
 
 export default function TopicListPage({
@@ -28,7 +29,7 @@ export default function TopicListPage({
     const matchQuery =
       item.tenDeTai.toLowerCase().includes(query) ||
       item.maDeTai.toLowerCase().includes(query) ||
-      (item.giangVienHuongDan?.hoTen || '').toLowerCase().includes(query);
+      layPhanCong(item).some((pc) => (pc.giangVien?.hoTen || '').toLowerCase().includes(query));
 
     if (!matchQuery) return false;
     if (filter === 'MATCHMAKING') return item.dangTimDongDoi && (item.danhSachSinhVien || []).length < 2;

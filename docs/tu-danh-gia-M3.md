@@ -12,7 +12,8 @@ Phụ trách: N14-B
 | `NguoiDung` | Đóng gói thuộc tính định danh người dùng và phương thức xác thực cơ bản | Không phụ thuộc lớp miền nào | `SinhVien`, `GiangVienHuongDan` | ✅ một trách nhiệm |
 | `SinhVien` | Quản lý hồ sơ học vụ (MSSV, lớp, kỹ năng) của sinh viên thực hiện đồ án | `NguoiDung` (kế thừa) | `DeTaiTotNghiep`, `DeTaiService` | ✅ một trách nhiệm |
 | `GiangVienHuongDan` | Quản lý thông tin giảng viên và bao đóng bất biến hạn ngạch tiếp nhận sinh viên (BR-01) | `NguoiDung` (kế thừa) | `DeTaiTotNghiep`, `DeTaiService` | ✅ một trách nhiệm |
-| `DeTaiTotNghiep` | Đại diện thực thể đồ án, bảo vệ số lượng thành viên 1..2 (BR-02) và quản lý cỗ máy trạng thái | `GiangVienHuongDan`, `SinhVien` | `DeTaiService` | ⚠️ hai trách nhiệm |
+| `DeTaiTotNghiep` | Đại diện thực thể đồ án, bảo vệ số lượng thành viên 1..2 (BR-02), số giảng viên 1..5 (TD-04) và quản lý cỗ máy trạng thái | `PhanCongHuongDan`, `GiangVienHuongDan`, `SinhVien` | `DeTaiService` | ⚠️ hai trách nhiệm |
+| `PhanCongHuongDan` | Giữ trạng thái thẩm định riêng của một giảng viên trên một đề tài (TD-04) | `GiangVienHuongDan` | `DeTaiTotNghiep` | ✅ một trách nhiệm |
 | `DeTaiService` | Điều phối luồng nghiệp vụ use case đăng ký, tìm kiếm ghép đội và thẩm định xét duyệt hai cấp | `DeTaiTotNghiep`, `GiangVienHuongDan`, `SinhVien` | `DeTaiController` | ⚠️ hai trách nhiệm |
 | `DeTaiController` | Tiếp nhận yêu cầu HTTP REST API, kiểm tra dữ liệu đầu vào và chuyển tiếp điều phối tới Service | `DeTaiService` | Tầng Giao diện (Frontend React) | ✅ một trách nhiệm |
 

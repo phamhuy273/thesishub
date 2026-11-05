@@ -1,11 +1,14 @@
 package vn.edu.uit.se100.thesishub.dto;
 
+import java.util.List;
+
 public class DangKyDeTaiRequest {
 
     private String maDeTai;
     private String tenDeTai;
     private String moTa;
     private String maGiangVien;
+    private List<String> danhSachMaGiangVien;
     private String maSoSinhVien;
     private boolean timDongDoi;
 
@@ -50,6 +53,22 @@ public class DangKyDeTaiRequest {
 
     public void setMaGiangVien(String maGiangVien) {
         this.maGiangVien = maGiangVien;
+    }
+
+    public List<String> getDanhSachMaGiangVien() {
+        return danhSachMaGiangVien;
+    }
+
+    public void setDanhSachMaGiangVien(List<String> danhSachMaGiangVien) {
+        this.danhSachMaGiangVien = danhSachMaGiangVien;
+    }
+
+    /** Client cũ chỉ gửi maGiangVien: coi như danh sách một giảng viên. */
+    public List<String> layDanhSachMaGiangVien() {
+        if (danhSachMaGiangVien != null && !danhSachMaGiangVien.isEmpty()) {
+            return danhSachMaGiangVien;
+        }
+        return maGiangVien == null || maGiangVien.isBlank() ? List.of() : List.of(maGiangVien);
     }
 
     public String getMaSoSinhVien() {

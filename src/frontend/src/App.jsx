@@ -7,6 +7,7 @@ import RegulationsPage from './pages/RegulationsPage';
 import CreateTopicModal from './components/CreateTopicModal';
 import ApplyTeamModal from './components/ApplyTeamModal';
 import ApprovalModal from './components/ApprovalModal';
+import { demSinhVienDangHuongDan } from './utils/phanCong';
 import TopicProgressModal from './components/TopicProgressModal';
 import {
   fetchDeTaiList,
@@ -37,7 +38,7 @@ export default function App() {
     maDeTai: 'DT03',
     tenDeTai: '',
     moTa: '',
-    maGiangVien: 'GV01',
+    danhSachMaGiangVien: ['GV01'],
     maSoSinhVien: 'SV01',
     timDongDoi: true
   });
@@ -97,16 +98,14 @@ export default function App() {
     }
 
     const availableGV = (giangVienList || []).find(g => {
-      const studentCount = (deTaiList || [])
-        .filter(d => d.trangThai !== 'GV_TU_CHOI' && d.trangThai !== 'BO_MON_TU_CHOI' && d.giangVienHuongDan?.maGiangVien === g.maGiangVien)
-        .reduce((sum, d) => sum + (d.danhSachSinhVien || []).length, 0);
+      const studentCount = demSinhVienDangHuongDan(deTaiList, g.maGiangVien);
       return studentCount < (g.soLuongSinhVienToiDa || 10);
     }) || giangVienList[0];
 
     setCreateForm(prev => ({
       ...prev,
       maDeTai: getNextMaDeTai(deTaiList),
-      maGiangVien: availableGV?.maGiangVien || 'GV01',
+      danhSachMaGiangVien: [availableGV?.maGiangVien || 'GV01'],
       maSoSinhVien: candidateId,
       tenDeTai: '',
       moTa: '',
@@ -171,11 +170,11 @@ export default function App() {
     }
   };
 
-  const handleApprovalSubmit = async (actionEndpoint) => {
+  const handleApprovalSubmit = async (actionEndpoint, maGiangVien) => {
     if (!selectedTopic) return;
 
     try {
-      await updateTrangThai(selectedTopic.maDeTai, actionEndpoint);
+      await updateTrangThai(selectedTopic.maDeTai, actionEndpoint, maGiangVien);
       showNotification('Cập nhật trạng thái thẩm định thành công');
       setOpenApprovalModal(false);
       await loadData();

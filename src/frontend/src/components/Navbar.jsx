@@ -38,7 +38,7 @@ export default function Navbar({ activeTab, setActiveTab, onOpenCreateModal, cur
                 }}
               >
                 <option value="student" style={{ background: '#0f172a', color: '#fff' }}>Sinh viên (SV01)</option>
-                <option value="instructor" style={{ background: '#0f172a', color: '#fff' }}>GVHD (GV01)</option>
+                <option value="instructor" style={{ background: '#0f172a', color: '#fff' }}>GVHD</option>
                 <option value="department" style={{ background: '#0f172a', color: '#fff' }}>Trưởng bộ môn</option>
               </select>
             </div>

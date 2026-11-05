@@ -1,5 +1,6 @@
 import React from 'react';
 import { STATUS_CONFIG } from '../constants/status';
+import { NHAN_TRANG_THAI_DUYET, layPhanCong } from '../utils/phanCong';
 
 export default function TopicCard({ topic, onApply, onApprove, onViewProgress, onDelete, currentRole }) {
   const status = STATUS_CONFIG[topic.trangThai] || { text: topic.trangThai, color: '#475569', bg: '#f1f5f9', border: '#cbd5e1' };
@@ -45,10 +46,19 @@ export default function TopicCard({ topic, onApply, onApprove, onViewProgress, o
         <div style={{ background: '#f8fafc', padding: '12px', borderRadius: '8px', fontSize: '13px', border: '1px solid #f1f5f9', marginTop: '12px' }}>
           <div style={{ marginBottom: '8px', color: '#475569', display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
             <span style={{ fontWeight: 600, color: '#334155' }}>Cán bộ hướng dẫn:</span>
-            <span>{topic.giangVienHuongDan?.hoTen || 'Chưa phân công'}</span>
-            <span className="code-pill" style={{ fontSize: '11px', padding: '1px 6px' }}>
-              {topic.giangVienHuongDan?.maGiangVien || 'GV'}
-            </span>
+            {layPhanCong(topic).length === 0 && <span>Chưa phân công</span>}
+            {layPhanCong(topic).map((pc) => (
+              <span key={pc.giangVien.maGiangVien} style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                <span>{pc.giangVien.hoTen}</span>
+                <span
+                  className="code-pill"
+                  title={NHAN_TRANG_THAI_DUYET[pc.trangThaiDuyet].text}
+                  style={{ fontSize: '11px', padding: '1px 6px', color: NHAN_TRANG_THAI_DUYET[pc.trangThaiDuyet].color }}
+                >
+                  {pc.giangVien.maGiangVien} · {NHAN_TRANG_THAI_DUYET[pc.trangThaiDuyet].text}
+                </span>
+              </span>
+            ))}
           </div>
 
           <div>
