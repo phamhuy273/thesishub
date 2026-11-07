@@ -264,7 +264,7 @@ export default function App() {
         <div className="container" style={{ display: 'flex', flexDirection: 'column', gap: '4px', alignItems: 'center' }}>
           <div>ThesisHub — Hệ thống Quản lý & Xét duyệt Đồ án Tốt nghiệp · ĐH Công nghệ Thông tin (UIT)</div>
           <div>
-            Chạy từ commit: <span className="code-pill" style={{ fontSize: '11px', padding: '1px 6px' }}>0595e08 (goi-3)</span> · Hạ tầng: Vercel & Render · Quản trị: N14-A
+            Chạy từ commit: <span className="code-pill" style={{ fontSize: '11px', padding: '1px 6px' }}>9d6254d (goi-4)</span> · Hạ tầng: Vercel & Render · Quản trị: N14-A
           </div>
         </div>
       </footer>
