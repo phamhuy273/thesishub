@@ -39,7 +39,7 @@ export default function App() {
     tenDeTai: '',
     moTa: '',
     danhSachMaGiangVien: ['GV01'],
-    maSoSinhVien: 'SV01',
+    maSoSinhVien: 'SV04',
     timDongDoi: true
   });
 
@@ -87,13 +87,11 @@ export default function App() {
         .flatMap(d => (d.danhSachSinhVien || []).map(s => s.maSoSinhVien))
     );
     let candidateId = 'SV01';
-    if (takenStudents.has('SV01')) {
-      for (let i = 2; i <= 20; i++) {
-        const id = 'SV' + String(i).padStart(2, '0');
-        if (!takenStudents.has(id)) {
-          candidateId = id;
-          break;
-        }
+    for (let i = 1; i <= 30; i++) {
+      const id = 'SV' + String(i).padStart(2, '0');
+      if (!takenStudents.has(id)) {
+        candidateId = id;
+        break;
       }
     }
 

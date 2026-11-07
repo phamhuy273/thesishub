@@ -139,6 +139,22 @@ export default function CreateTopicModal({
           {existingTopicOfStudent && (
             <div style={{ color: '#b91c1c', background: '#fef2f2', border: '1px solid #fecaca', borderRadius: '8px', padding: '10px 14px', fontSize: '13px', marginBottom: '1.25rem', lineHeight: 1.4 }}>
               ⚠️ <strong>Cảnh báo quy chế BR-04:</strong> Sinh viên <strong>{form.maSoSinhVien}</strong> hiện đã tham gia đề tài <strong>{existingTopicOfStudent.maDeTai}</strong>. Mỗi sinh viên chỉ được tham gia tối đa 1 đề tài trong một học kỳ.
+              <div style={{ marginTop: '6px' }}>
+                <span style={{ fontSize: '12px', color: '#475569' }}>Gợi ý: Chọn MSSV chưa có đề tài như </span>
+                {['SV04', 'SV05', 'SV06', 'SV07', 'SV08']
+                  .filter(id => !(deTaiList || []).some(d => d.trangThai !== 'GV_TU_CHOI' && d.trangThai !== 'BO_MON_TU_CHOI' && (d.danhSachSinhVien || []).some(s => s.maSoSinhVien === id)))
+                  .slice(0, 3)
+                  .map(suggestId => (
+                    <button
+                      key={suggestId}
+                      type="button"
+                      onClick={() => setForm({ ...form, maSoSinhVien: suggestId })}
+                      style={{ marginLeft: '4px', padding: '2px 8px', fontSize: '12px', background: '#e0f2fe', color: '#0369a1', border: '1px solid #bae6fd', borderRadius: '4px', cursor: 'pointer' }}
+                    >
+                      Dùng {suggestId}
+                    </button>
+                  ))}
+              </div>
             </div>
           )}
 

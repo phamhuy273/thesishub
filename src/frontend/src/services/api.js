@@ -18,7 +18,12 @@ const DEFAULT_GV = [
 const DEFAULT_SV = [
   { id: 1, maSoSinhVien: 'SV01', hoTen: 'Nguyễn Văn C', lop: 'KTPM2023', email: 'sv.c@uit.edu.vn' },
   { id: 2, maSoSinhVien: 'SV02', hoTen: 'Lê Thị D', lop: 'KTPM2023', email: 'sv.d@uit.edu.vn' },
-  { id: 3, maSoSinhVien: 'SV03', hoTen: 'Phạm Văn E', lop: 'KTPM2023', email: 'sv.e@uit.edu.vn' }
+  { id: 3, maSoSinhVien: 'SV03', hoTen: 'Phạm Văn E', lop: 'KTPM2023', email: 'sv.e@uit.edu.vn' },
+  { id: 4, maSoSinhVien: 'SV04', hoTen: 'Hoàng Văn F', lop: 'KTPM2023', email: 'sv.f@uit.edu.vn' },
+  { id: 5, maSoSinhVien: 'SV05', hoTen: 'Đỗ Thị G', lop: 'KTPM2023', email: 'sv.g@uit.edu.vn' },
+  { id: 6, maSoSinhVien: 'SV06', hoTen: 'Vũ Minh H', lop: 'KTPM2023', email: 'sv.h@uit.edu.vn' },
+  { id: 7, maSoSinhVien: 'SV07', hoTen: 'Trần Văn I', lop: 'KTPM2023', email: 'sv.i@uit.edu.vn' },
+  { id: 8, maSoSinhVien: 'SV08', hoTen: 'Lê Thị K', lop: 'KTPM2023', email: 'sv.k@uit.edu.vn' }
 ];
 
 const DEFAULT_DE_TAI = [
@@ -113,8 +118,14 @@ export async function fetchDeTaiList() {
     if (res.ok) {
       const data = await res.json();
       const filtered = data.filter(d => !deleted.includes(d.maDeTai));
-      setStorage('detai', filtered);
-      return { data: filtered, isBackend: true };
+      const localList = getStorage('detai', DEFAULT_DE_TAI);
+      const localOnlyTopics = localList.filter(l =>
+        !deleted.includes(l.maDeTai) &&
+        !filtered.some(s => s.maDeTai === l.maDeTai)
+      );
+      const merged = [...localOnlyTopics, ...filtered];
+      setStorage('detai', merged);
+      return { data: merged, isBackend: true };
     }
   } catch (err) {}
   const localList = getStorage('detai', DEFAULT_DE_TAI);
@@ -123,11 +134,20 @@ export async function fetchDeTaiList() {
 }
 
 export async function createDeTai(payload) {
+  const primaryGV = (payload.danhSachMaGiangVien && payload.danhSachMaGiangVien[0]) || payload.maGiangVien || 'GV01';
+  const outgoingPayload = {
+    ...payload,
+    maGiangVien: primaryGV,
+    danhSachMaGiangVien: (payload.danhSachMaGiangVien && payload.danhSachMaGiangVien.length > 0)
+      ? payload.danhSachMaGiangVien
+      : [primaryGV]
+  };
+
   try {
     const res = await fetch(`${API_BASE}/de-tai`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
+      body: JSON.stringify(outgoingPayload),
       signal: AbortSignal.timeout(6000)
     });
     if (res.ok) {
@@ -171,7 +191,7 @@ export async function createDeTai(payload) {
     throw new Error(`Sinh viên ${payload.maSoSinhVien} đã có đề tài trong học kỳ (Vi phạm bất biến BR-04)`);
   }
 
-  const danhSachMa = payload.danhSachMaGiangVien || [];
+  const danhSachMa = outgoingPayload.danhSachMaGiangVien;
   if (danhSachMa.length < 1 || danhSachMa.length > SO_GIANG_VIEN_TOI_DA) {
     throw new Error(`Mỗi đề tài có từ 1 đến ${SO_GIANG_VIEN_TOI_DA} giảng viên hướng dẫn (TD-04)`);
   }
